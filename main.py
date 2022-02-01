@@ -1,3 +1,6 @@
+import random
+
+
 class Item():
     def __init__(self, value, name, type, damage, durability, quantity, protection):
         self.value = value
@@ -53,12 +56,11 @@ class Game():
         self.monsterList = monsterList
         self.storage = storage
 
-
-def displayMap(game):
-    for x in range(len(game.maps[game.player.mapId])):
-        for y in range(len(game.maps[game.player.mapId][0])):
-            print(game.maps[game.player.mapId][x][y], end=" ")
-        print("")
+    def displayMap(self):
+        for x in range(len(self.maps[game.player.mapId])):
+            for y in range(len(self.maps[game.player.mapId][0])):
+                print(self.maps[game.player.mapId][x][y], end=" ")
+            print("")
 
 
 def initMap(height, width):
@@ -76,6 +78,63 @@ def initAllMaps(height, width):
     return maps
 
 
+def fillBaseMap(map, basemap):
+    for i in range(len(map)):
+        for j in range(len(map[0])):
+            if map[i][j] != 0:
+                basemap[i][j] = map[i][j]
+
+
+def placeThings(map, id, proportion, min):
+    cptThings = 0
+    while cptThings < (min + proportion * (len(map) * len(map[0]))):
+        randomPosX = random.randint(0, len(map) - 1)
+        randomPosY = random.randint(0, len(map[0]) - 1)
+        if map[randomPosX][randomPosY] == 0:
+            map[randomPosX][randomPosY] = id
+            cptThings += 1
+    return map
+
+
+def placeMonsters(map, zone):
+    cptMonsters = 0
+    while cptMonsters < (10 + 0.05 * (len(map) * len(map[0]))):
+        randomPosX = random.randint(0, len(map) - 1)
+        randomPosY = random.randint(0, len(map[0]) - 1)
+        if map[randomPosX][randomPosY] == 0:
+            map[randomPosX][randomPosY] = random.randint(0, 2) % 3 + 9 + (zone * 3)
+            cptMonsters += 1
+    return map
+
+
+def fillMap(map, zone):
+    print("test")
+    if zone == 3:
+        map = placeThings(map, 99, 0, 1)
+        map = placeThings(map, -3, 0, 1)
+    elif zone == 2:
+        map = placeThings(map, -2, 0, 1)
+        map = placeThings(map, -3, 0, 1)
+    else:
+        map = placeThings(map, -2, 0, 1)
+
+    map = placeThings(map, 2, 0, 1)
+    map = placeThings(map, 3 + (zone * 3), 0.1, 3)
+    map = placeThings(map, 4 + (zone * 3), 0.1, 3)
+    map = placeThings(map, 5 + (zone * 3), 0.1, 3)
+    map = placeThings(map, -1, 0.1, 3)
+    map = placeMonsters(map, zone)
+    return map
+
+
+def fillAllMaps(maps):
+    maps[0][4][4] = 1
+    for i in range(0, 3):
+        maps[0 + i * 3] = fillMap(maps[0 + i * 3], i)
+        fillBaseMap(maps[0 + i * 3], maps[2 + i * 3])
+    return maps
+
+
 item1 = Item(1, "testItem", "weapon", 1, 10, 1, 0)
 print(item1.value, item1.name, item1.type, item1.damage, item1.durability, item1.quantity, item1.protection)
 
@@ -84,6 +143,6 @@ print(monster1.id, monster1.name, monster1.hp, monster1.att, monster1.res, monst
 
 player = Player(0, 1, 100, [[1]], 4, 4, 0, 150, 100)
 
-game = Game(initAllMaps(10, 10), [], player, [], [], [])
+game = Game(fillAllMaps(initAllMaps(10, 10)), [], player, [], [], [])
 
-displayMap(game)
+game.displayMap()
