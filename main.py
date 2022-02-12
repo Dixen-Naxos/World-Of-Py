@@ -2,8 +2,7 @@ import random
 
 
 class Item():
-    def __init__(self, value, name, type, damage, durability, quantity, protection):
-        self.value = value
+    def __init__(self, name, type, damage, durability, quantity, protection):
         self.name = name
         self.type = type
         self.damage = damage
@@ -13,8 +12,7 @@ class Item():
 
 
 class Monster():
-    def __init__(self, id, name, hp, att, res, xp, imagePath):
-        self.id = id
+    def __init__(self, name, hp, att, res, xp, imagePath):
         self.name = name
         self.hp = hp
         self.att = att
@@ -24,11 +22,11 @@ class Monster():
 
 
 class Player():
-    def __init__(self, currentExp, level, currentHp, inventory, posX, posY, mapId, hpEvolution, xpEvolution):
+    def __init__(self, currentExp, level, currentHp, posX, posY, mapId, hpEvolution, xpEvolution):
         self.currentExp = currentExp
         self.level = level
         self.currentHp = currentHp
-        self.inventory = inventory
+        self.inventory = []
         self.posX = posX
         self.posY = posY
         self.mapId = mapId
@@ -36,9 +34,10 @@ class Player():
         self.xpEvolution = xpEvolution
 
 
+
+
 class Craft():
-    def __init__(self, id, itemId, idResource1, nbResource1, idResource2, nbResource2, zone):
-        self.id = id
+    def __init__(self, itemId, idResource1, nbResource1, idResource2, nbResource2, zone):
         self.itemId = itemId
         self.idResource1 = idResource1
         self.nbResource1 = nbResource1
@@ -48,12 +47,12 @@ class Craft():
 
 
 class Game():
-    def __init__(self, maps, itemList, player, craftList, monsterList, storage):
+    def __init__(self, maps, player, storage):
         self.maps = maps
-        self.itemList = itemList
+        self.itemsDict = self.initItemsDict()
         self.player = player
-        self.craftList = craftList
-        self.monsterList = monsterList
+        self.craftsDict = self.initCraftsDict()
+        self.monstersDict = self.initMonstersDict()
         self.storage = storage
 
     def displayMap(self):
@@ -62,6 +61,82 @@ class Game():
                 print(self.maps[game.player.mapId][x][y], end=" ")
             print("")
 
+    def initItemsDict(self):
+        itemsDict = {}
+        names = ["Epee en bois", "Pioche en bois", "Serpe en bois", "Hache en bois", "Sapin", "Pierre",
+                 "Herbe", "Epee en pierre", "Lance en pierre", "Marteau en pierre", "Plastron en pierre",
+                 "Pioche en pierre", "Serpe en pierre", "Hache en pierre", "Potion de vie I", "Hetre", "Fer",
+                 "Lavande", "Epee en fer", "Lance en fer", "Marteau en fer", "Plastron en fer",
+                 "Pioche en fer", "Serpe en fer", "Hache en fer", "Potion de vie II", "Chene", "Diamant",
+                 "Chanvre", "Epee en diamant", "Lance en diamant", "Marteau en diamant",
+                 "Plastron en diamant",
+                 "Potion de vie III"]
+
+        types = ["Arme", "Outil", "Outil", "Outil", "Ressource de craft", "Ressource de craft",
+                 "Ressource de craft", "Arme", "Arme", "Arme", "Armure",
+                 "Outil", "Outil", "Outil", "Soin", "Ressource de craft", "Ressource de craft",
+                 "Ressource de craft", "Arme", "Arme", "Arme", "Armure",
+                 "Outil", "Outil", "Outil", "Soin", "Ressource de craft", "Ressource de craft",
+                 "Ressource de craft", "Arme", "Arme", "Arme", "Armure",
+                 "Soin"]
+
+        damages = [1, 0, 0, 0, 0, 0, 0, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 5, 7, 10, 0, 0, 0, 0, 0, 0,
+                  0, 0, 10, 15, 20, 0, 0]
+        durability = [10, 10, 10, 10, 1, 1, 1, 10, 8, 5, 1, 10, 10, 10, 1, 1, 1, 1, 10, 8, 5, 1, 10, 10, 10, 1, 1,
+                      1, 1, 10, 8, 5, 1, 1]
+        protection = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                      0, 40, 0]
+
+        for i in range(len(names)):
+            itemsDict[i + 1] = Item(names[i], types[i], damages[i], durability[i], 0, protection[i])
+        return itemsDict
+
+    def initMonstersDict(self):
+        monstersDict = {}
+        names = ["Sanglier", "Slime", "Emmanuel Macron", "Petit ours brun", "Flan", "Caribou",
+                            "Pomme de terre vivante", "Sananes", "Ancien dragon", "Jesus"]
+
+        hp = [5, 3, 7, 16, 2, 25, 7, 70, 60, 80]
+
+        att = [5, 1, 4, 8, 35, 15, 3, 3, 60, 50]
+
+
+        defense = [1, 0, 3, 6, 40, 15, 1, 2, 40, 20]
+
+        xp = [5, 4, 8, 9, 60, 15, 20, 22, 60, 60]
+        imagePath = ["../resources/textures/monstres/sanglier.png",
+                                "../resources/textures/monstres/slime.png", "../resources/textures/monstres/macron.png",
+                                "../resources/textures/monstres/petit_ours_brun.png",
+                                "../resources/textures/monstres/flan.png", "../resources/textures/monstres/caribou.png",
+                                "../resources/textures/monstres/glados.png",
+                                "../resources/textures/monstres/sananes.png",
+                                "../resources/textures/monstres/dragon.png",
+                                "../resources/textures/monstres/armand_jesus.png", ]
+
+        for i in range(len(names)):
+            monstersDict[i + 12] = Monster(names[i], hp[i], att[i], defense[i], xp[i], imagePath[i])
+        return monstersDict
+
+    def initCraftsDict(self):
+        craftsDict = {}
+        itemId = [1, 8, 19, 30, 9, 20, 31, 10, 21, 32, 11, 22, 33, 2, 12, 23, 4, 14, 25, 3, 13, 24, 15,
+                      26, 34]
+
+        idResource1 = [5, 5, 16, 27, 5, 16, 27, 5, 16, 27, 6, 17, 28, 5, 5, 16, 5, 5, 16, 5, 5, 16, 7,
+                           18, 29]
+
+        nbResource1 = [3, 2, 2, 2, 3, 3, 3, 2, 2, 2, 10, 12, 16, 3, 2, 2, 3, 2, 2, 3, 2, 2, 2, 2, 2]
+
+        idResource2 = [0, 6, 17, 17, 6, 17, 28, 6, 17, 28, 0, 0, 0, 0, 6, 17, 0, 6, 17, 0, 6, 17, 0, 0,
+                           0]
+
+        nbResource2 = [0, 3, 4, 5, 4, 5, 6, 6, 7, 8, 0, 0, 0, 0, 3, 4, 0, 3, 4, 0, 3, 4, 0, 0, 0]
+
+        zone = [6, 6, 5, 3, 6, 5, 3, 6, 5, 3, 6, 5, 3, 6, 6, 5, 6, 6, 5, 6, 6, 5, 6, 5, 3]
+
+        for i in range(len(itemId)):
+            craftsDict[i] = Craft(itemId[i], idResource1[i], nbResource1[i], idResource2[i], nbResource2, zone[i])
+        return craftsDict
 
 def initMap(height, width):
     map = [[0 for x in range(width)] for y in range(height)]
@@ -108,7 +183,6 @@ def placeMonsters(map, zone):
 
 
 def fillMap(map, zone):
-    print("test")
     if zone == 3:
         map = placeThings(map, 99, 0, 1)
         map = placeThings(map, -3, 0, 1)
@@ -135,14 +209,15 @@ def fillAllMaps(maps):
     return maps
 
 
-item1 = Item(1, "testItem", "weapon", 1, 10, 1, 0)
-print(item1.value, item1.name, item1.type, item1.damage, item1.durability, item1.quantity, item1.protection)
 
-monster1 = Monster(99, "testMonster", 10, 3, 0, 5, "testImagePath")
-print(monster1.id, monster1.name, monster1.hp, monster1.att, monster1.res, monster1.xp, monster1.imagePath)
 
-player = Player(0, 1, 100, [[1]], 4, 4, 0, 150, 100)
+player = Player(0, 1, 100, 4, 4, 0, 150, 100)
 
-game = Game(fillAllMaps(initAllMaps(10, 10)), [], player, [], [], [])
+game = Game(fillAllMaps(initAllMaps(10, 10)), player, [])
+
+print(game.itemsDict[1].name, game.itemsDict[1].type)
+print(game.monstersDict[12].name)
+print(game.craftsDict[12].itemId)
+#game.player.newGameInventory(game.itemsDict)
 
 game.displayMap()
