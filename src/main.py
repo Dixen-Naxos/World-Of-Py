@@ -232,6 +232,7 @@ class Game:
                     self.move(self.player.posX, self.player.posY - 1)
                 else:
                     print("pas possible")
+        self.decrementTimers()
 
     def fillRender(self, screen):
         image = pygame.image.load("resources/textures/0.png")
