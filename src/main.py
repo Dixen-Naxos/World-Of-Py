@@ -1,7 +1,7 @@
-import random
+import random,copy
 
 
-class Item():
+class Item:
     def __init__(self, name, type, damage, durability, quantity, protection):
         self.name = name
         self.type = type
@@ -11,7 +11,7 @@ class Item():
         self.protection = protection
 
 
-class Monster():
+class Monster:
     def __init__(self, name, hp, att, res, xp, imagePath):
         self.name = name
         self.hp = hp
@@ -21,22 +21,29 @@ class Monster():
         self.imagePath = imagePath
 
 
-class Player():
-    def __init__(self, currentExp, level, currentHp, posX, posY, mapId, hpEvolution, xpEvolution):
+class Player:
+    def __init__(self, currentExp, level, currentHp, posX, posY, mapId, hpEvolution, xpEvolution, inventory=None):
+        if inventory is None:
+            self.inventory = []
+        else:
+            self.inventory = inventory
         self.currentExp = currentExp
         self.level = level
         self.currentHp = currentHp
-        self.inventory = []
         self.posX = posX
         self.posY = posY
         self.mapId = mapId
         self.hpEvolution = hpEvolution
         self.xpEvolution = xpEvolution
 
+    def newGameInventory(self, itemDict):
+        self.inventory.append(copy.deepcopy(itemDict[1]))
+        self.inventory.append(copy.deepcopy(itemDict[2]))
+        self.inventory.append(copy.deepcopy(itemDict[3]))
+        self.inventory.append(copy.deepcopy(itemDict[4]))
 
 
-
-class Craft():
+class Craft:
     def __init__(self, itemId, idResource1, nbResource1, idResource2, nbResource2, zone):
         self.itemId = itemId
         self.idResource1 = idResource1
@@ -46,7 +53,7 @@ class Craft():
         self.zone = zone
 
 
-class Game():
+class Game:
     def __init__(self, maps, player, storage):
         self.maps = maps
         self.itemsDict = self.initItemsDict()
@@ -61,7 +68,8 @@ class Game():
                 print(self.maps[game.player.mapId][x][y], end=" ")
             print("")
 
-    def initItemsDict(self):
+    @staticmethod
+    def initItemsDict():
         itemsDict = {}
         names = ["Epee en bois", "Pioche en bois", "Serpe en bois", "Hache en bois", "Sapin", "Pierre",
                  "Herbe", "Epee en pierre", "Lance en pierre", "Marteau en pierre", "Plastron en pierre",
@@ -81,7 +89,7 @@ class Game():
                  "Soin"]
 
         damages = [1, 0, 0, 0, 0, 0, 0, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 5, 7, 10, 0, 0, 0, 0, 0, 0,
-                  0, 0, 10, 15, 20, 0, 0]
+                   0, 0, 10, 15, 20, 0, 0]
         durability = [10, 10, 10, 10, 1, 1, 1, 10, 8, 5, 1, 10, 10, 10, 1, 1, 1, 1, 10, 8, 5, 1, 10, 10, 10, 1, 1,
                       1, 1, 10, 8, 5, 1, 1]
         protection = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -91,44 +99,45 @@ class Game():
             itemsDict[i + 1] = Item(names[i], types[i], damages[i], durability[i], 0, protection[i])
         return itemsDict
 
-    def initMonstersDict(self):
+    @staticmethod
+    def initMonstersDict():
         monstersDict = {}
         names = ["Sanglier", "Slime", "Emmanuel Macron", "Petit ours brun", "Flan", "Caribou",
-                            "Pomme de terre vivante", "Sananes", "Ancien dragon", "Jesus"]
+                 "Pomme de terre vivante", "Sananes", "Ancien dragon", "Jesus"]
 
         hp = [5, 3, 7, 16, 2, 25, 7, 70, 60, 80]
 
         att = [5, 1, 4, 8, 35, 15, 3, 3, 60, 50]
 
-
         defense = [1, 0, 3, 6, 40, 15, 1, 2, 40, 20]
 
         xp = [5, 4, 8, 9, 60, 15, 20, 22, 60, 60]
         imagePath = ["../resources/textures/monstres/sanglier.png",
-                                "../resources/textures/monstres/slime.png", "../resources/textures/monstres/macron.png",
-                                "../resources/textures/monstres/petit_ours_brun.png",
-                                "../resources/textures/monstres/flan.png", "../resources/textures/monstres/caribou.png",
-                                "../resources/textures/monstres/glados.png",
-                                "../resources/textures/monstres/sananes.png",
-                                "../resources/textures/monstres/dragon.png",
-                                "../resources/textures/monstres/armand_jesus.png", ]
+                     "../resources/textures/monstres/slime.png", "../resources/textures/monstres/macron.png",
+                     "../resources/textures/monstres/petit_ours_brun.png",
+                     "../resources/textures/monstres/flan.png", "../resources/textures/monstres/caribou.png",
+                     "../resources/textures/monstres/glados.png",
+                     "../resources/textures/monstres/sananes.png",
+                     "../resources/textures/monstres/dragon.png",
+                     "../resources/textures/monstres/armand_jesus.png", ]
 
         for i in range(len(names)):
             monstersDict[i + 12] = Monster(names[i], hp[i], att[i], defense[i], xp[i], imagePath[i])
         return monstersDict
 
-    def initCraftsDict(self):
+    @staticmethod
+    def initCraftsDict():
         craftsDict = {}
         itemId = [1, 8, 19, 30, 9, 20, 31, 10, 21, 32, 11, 22, 33, 2, 12, 23, 4, 14, 25, 3, 13, 24, 15,
-                      26, 34]
+                  26, 34]
 
         idResource1 = [5, 5, 16, 27, 5, 16, 27, 5, 16, 27, 6, 17, 28, 5, 5, 16, 5, 5, 16, 5, 5, 16, 7,
-                           18, 29]
+                       18, 29]
 
         nbResource1 = [3, 2, 2, 2, 3, 3, 3, 2, 2, 2, 10, 12, 16, 3, 2, 2, 3, 2, 2, 3, 2, 2, 2, 2, 2]
 
         idResource2 = [0, 6, 17, 17, 6, 17, 28, 6, 17, 28, 0, 0, 0, 0, 6, 17, 0, 6, 17, 0, 6, 17, 0, 0,
-                           0]
+                       0]
 
         nbResource2 = [0, 3, 4, 5, 4, 5, 6, 6, 7, 8, 0, 0, 0, 0, 3, 4, 0, 3, 4, 0, 3, 4, 0, 0, 0]
 
@@ -137,6 +146,7 @@ class Game():
         for i in range(len(itemId)):
             craftsDict[i] = Craft(itemId[i], idResource1[i], nbResource1[i], idResource2[i], nbResource2, zone[i])
         return craftsDict
+
 
 def initMap(height, width):
     map = [[0 for x in range(width)] for y in range(height)]
@@ -209,15 +219,13 @@ def fillAllMaps(maps):
     return maps
 
 
-
-
 player = Player(0, 1, 100, 4, 4, 0, 150, 100)
 
 game = Game(fillAllMaps(initAllMaps(10, 10)), player, [])
 
-print(game.itemsDict[1].name, game.itemsDict[1].type)
-print(game.monstersDict[12].name)
-print(game.craftsDict[12].itemId)
-#game.player.newGameInventory(game.itemsDict)
+game.player.newGameInventory(game.itemsDict)
+print(game.itemsDict[1].durability, game.player.inventory[0].durability)
+game.player.inventory[0].durability = game.player.inventory[0].durability - 1
+print(game.itemsDict[1].durability, game.player.inventory[0].durability)
 
 game.displayMap()
