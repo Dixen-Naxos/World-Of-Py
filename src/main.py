@@ -147,6 +147,51 @@ class Game:
             craftsDict[i] = Craft(itemId[i], idResource1[i], nbResource1[i], idResource2[i], nbResource2, zone[i])
         return craftsDict
 
+    def decrementTimers(self):
+        for x in range(len(self.maps[self.player.mapId])):
+            for y in range(len(self.maps[self.player.mapId][0])):
+                if self.maps[self.player.mapId + 1][x][y] != 0:
+                    if self.maps[self.player.mapId + 1][x][y] > 1:
+                        self.maps[self.player.mapId + 1][x][y] -= 1
+                    else:
+                        if self.maps[self.player.mapId][x][y] != 1:
+                            self.maps[self.player.mapId + 1][x][y] = 0
+                            self.maps[self.player.mapId][x][y] = self.maps[self.player.mapId + 2][x][y]
+
+    def findPortal(self, idPortal):
+        for x in range(len(self.maps[self.player.mapId])):
+            for y in range(len(self.maps[self.player.mapId][0])):
+                if self.maps[self.player.mapId][x][y] == idPortal:
+                    self.player.posX = x
+                    self.player.posY = y
+                    self.maps[self.player.mapId + 1][x][y] = 1
+                    self.maps[self.player.mapId][x][y] = 1
+
+    def passPortal(self, idPortal):
+        global screen
+        if self.player.mapId == 0 and self.player.level >= 3:
+            self.maps[self.player.mapId][self.player.posX][self.player.posY] = 0
+            self.player.mapId = 3
+            self.findPortal(idPortal)
+            # display text with pos
+        elif self.player.mapId == 6:
+            self.maps[self.player.mapId][self.player.posX][self.player.posY] = 0
+            self.player.mapId = 3
+            self.findPortal(idPortal)
+        elif self.player.mapId == 3:
+            if idPortal == -2:
+                self.maps[self.player.mapId][self.player.posX][self.player.posY] = 0
+                self.player.mapId = 0
+                self.findPortal(idPortal)
+            elif idPortal == -3 and self.player.level >= 7:
+                self.maps[self.player.mapId][self.player.posX][self.player.posY] = 0
+                self.player.mapId = 6
+                self.findPortal(idPortal)
+        else:
+            return 0
+        size = width, height = len(game.maps[game.player.mapId]) * 32, len(game.maps[game.player.mapId][0]) * 32
+        screen = pygame.display.set_mode(size)
+
     def move(self, posX, posY):
         if 12 > self.maps[self.player.mapId][posX][posY] > 2:
             print("collecte ressource")
@@ -157,6 +202,7 @@ class Game:
         elif 22 > self.maps[self.player.mapId][posX][posY] > 11:
             print("monster")
         elif self.maps[self.player.mapId][posX][posY] == -2 or self.maps[self.player.mapId][posX][posY] == -3:
+            self.passPortal(self.maps[self.player.mapId][posX][posY])
             print("portail")
         else:
             self.maps[self.player.mapId][posX][posY] = 1
@@ -221,15 +267,15 @@ def fillBaseMap(map, basemap):
                 basemap[i][j] = map[i][j]
 
 
-def placeThings(map, id, proportion, min):
+def placeThings(mapTemp, id, proportion, min):
     cptThings = 0
-    while cptThings < (min + proportion * (len(map) * len(map[0]))):
-        randomPosX = random.randint(0, len(map) - 1)
-        randomPosY = random.randint(0, len(map[0]) - 1)
-        if map[randomPosX][randomPosY] == 0:
-            map[randomPosX][randomPosY] = id
+    while cptThings < (min + proportion * (len(mapTemp) * len(mapTemp[0]))):
+        randomPosX = random.randint(0, len(mapTemp) - 1)
+        randomPosY = random.randint(0, len(mapTemp[0]) - 1)
+        if mapTemp[randomPosX][randomPosY] == 0:
+            mapTemp[randomPosX][randomPosY] = id
             cptThings += 1
-    return map
+    return mapTemp
 
 
 def placeMonsters(map, zone):
@@ -238,7 +284,7 @@ def placeMonsters(map, zone):
         randomPosX = random.randint(0, len(map) - 1)
         randomPosY = random.randint(0, len(map[0]) - 1)
         if map[randomPosX][randomPosY] == 0:
-            map[randomPosX][randomPosY] = random.randint(0, 2) % 3 + 9 + (zone * 3)
+            map[randomPosX][randomPosY] = random.randint(0, 2) % 3 + 12 + (zone * 3)
             cptMonsters += 1
     return map
 
@@ -264,17 +310,14 @@ def fillMap(map, zone):
 
 def fillAllMaps(maps):
     maps[0][4][4] = 1
-    for i in range(0, 3):
-        maps[0 + i * 3] = fillMap(maps[0 + i * 3], i)
-        fillBaseMap(maps[0 + i * 3], maps[2 + i * 3])
+    for i in range(0, 6, 3):
+        maps[i] = fillMap(maps[i], int(i / 3))
+        fillBaseMap(maps[i], maps[2 + i])
     return maps
-
-
 
 
 pygame.init()
 black = 0, 0, 0
-
 
 player = Player(0, 1, 100, 4, 4, 0, 150, 100)
 
@@ -283,10 +326,11 @@ game = Game(fillAllMaps(initAllMaps(10, 10)), player, [])
 game.player.newGameInventory(game.itemsDict)
 size = width, height = len(game.maps[game.player.mapId]) * 32, len(game.maps[game.player.mapId][0]) * 32
 screen = pygame.display.set_mode(size)
+game.player.level = 5
 
-game.displayMap()
 game.fillRender(screen)
 game.renderMap(screen)
+pygame.display.flip()
 while 1:
     for event in pygame.event.get():
         match event.type:
@@ -307,7 +351,7 @@ while 1:
 
                     case pygame.K_q:
                         game.checkCanMove(4)
-
-    game.fillRender(screen)
-    game.renderMap(screen)
-    pygame.display.flip()
+                        
+                game.fillRender(screen)
+                game.renderMap(screen)
+                pygame.display.flip()
