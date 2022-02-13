@@ -2,7 +2,8 @@ import random, copy, pygame, sys, os, time
 
 
 class Item:
-    def __init__(self, name, type, damage, durability, quantity, protection):
+    def __init__(self, id, name, type, damage, durability, quantity, protection):
+        self.id = id
         self.name = name
         self.type = type
         self.damage = damage
@@ -41,6 +42,24 @@ class Player:
         self.inventory.append(copy.deepcopy(itemDict[2]))
         self.inventory.append(copy.deepcopy(itemDict[3]))
         self.inventory.append(copy.deepcopy(itemDict[4]))
+
+    def checkInInventoryAndUseTool(self, itemId):
+        print("check tool")
+        for i in range(len(self.inventory)):
+            if self.inventory[i].id == itemId and self.inventory[i].durability >= 1:
+                print("found")
+                self.inventory[i].durability -= 1
+                return 1
+        return -1
+
+    def appendCraftResource(self, itemDict, resourceId):
+        result = 0
+        for elt in self.inventory:
+            if elt.id == resourceId and elt.quantity < 20:
+                elt.quantity += 1
+                result = 1
+        if result == 0 and len(self.inventory) < 11:
+            self.inventory.append(copy.deepcopy(itemDict[resourceId]))
 
 
 class Craft:
@@ -90,13 +109,13 @@ class Game:
 
         damages = [1, 0, 0, 0, 0, 0, 0, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 5, 7, 10, 0, 0, 0, 0, 0, 0,
                    0, 0, 10, 15, 20, 0, 0]
-        durability = [10, 10, 10, 10, 1, 1, 1, 10, 8, 5, 1, 10, 10, 10, 1, 1, 1, 1, 10, 8, 5, 1, 10, 10, 10, 1, 1,
-                      1, 1, 10, 8, 5, 1, 1]
+        durability = [10, 10, 10, 10, 1, 1, 1, 15, 10, 8, 1, 15, 15, 15, 1, 1, 1, 1, 20, 15, 10, 1, 20, 20, 20, 1, 1,
+                      1, 1, 25, 20, 15, 1, 1]
         protection = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                       0, 40, 0]
 
         for i in range(len(names)):
-            itemsDict[i + 1] = Item(names[i], types[i], damages[i], durability[i], 0, protection[i])
+            itemsDict[i + 1] = Item(i + 1, names[i], types[i], damages[i], durability[i], 0, protection[i])
         return itemsDict
 
     @staticmethod
@@ -193,8 +212,82 @@ class Game:
         size = width, height = len(game.maps[game.player.mapId]) * 32, len(game.maps[game.player.mapId][0]) * 32
         screen = pygame.display.set_mode(size)
 
+    def movePlayerAddTimer(self, posX, posY, timer):
+        self.maps[self.player.mapId][self.player.posX][self.player.posY] = 0
+        self.maps[self.player.mapId][posX][posY] = 1
+        self.maps[self.player.mapId + 1][posX][posY] = timer
+        self.player.posX = posX
+        self.player.posY = posY
+
+    def collectStone(self, value):
+        match value:
+            case 4:
+                print("test Stone")
+                if self.player.checkInInventoryAndUseTool(2) != -1 or self.player.checkInInventoryAndUseTool(
+                        12) != -1 or self.player.checkInInventoryAndUseTool(23) != -1:
+                    self.player.appendCraftResource(self.itemsDict, 6)
+                    return 1
+            case 7:
+                if self.player.checkInInventoryAndUseTool(12) != -1 or self.player.checkInInventoryAndUseTool(23) != -1:
+                    self.player.appendCraftResource(self.itemsDict, 17)
+                    return 1
+            case 10:
+                if self.player.checkInInventoryAndUseTool(23) != -1:
+                    self.player.appendCraftResource(self.itemsDict, 28)
+                    return 1
+        return -1
+
+    def collectWood(self, value):
+        match value:
+            case 5:
+                print("test wood")
+                if self.player.checkInInventoryAndUseTool(4) != -1 or self.player.checkInInventoryAndUseTool(
+                        14) != -1 or self.player.checkInInventoryAndUseTool(25) != -1:
+                    self.player.appendCraftResource(self.itemsDict, 5)
+                    return 1
+            case 8:
+                if self.player.checkInInventoryAndUseTool(14) != -1 or self.player.checkInInventoryAndUseTool(25) != -1:
+                    self.player.appendCraftResource(self.itemsDict, 16)
+                    return 1
+            case 11:
+                if self.player.checkInInventoryAndUseTool(25) != -1:
+                    self.player.appendCraftResource(self.itemsDict, 27)
+                    return 1
+        return -1
+
+    def collectPlant(self, value):
+        match value:
+            case 3:
+                print("test plant")
+                if self.player.checkInInventoryAndUseTool(3) != -1 or self.player.checkInInventoryAndUseTool(
+                        13) != -1 or self.player.checkInInventoryAndUseTool(24) != -1:
+                    self.player.appendCraftResource(self.itemsDict, 7)
+                    return 1
+            case 6:
+                if self.player.checkInInventoryAndUseTool(13) != -1 or self.player.checkInInventoryAndUseTool(24) != -1:
+                    self.player.appendCraftResource(self.itemsDict, 18)
+                    return 1
+            case 9:
+                if self.player.checkInInventoryAndUseTool(24) != -1:
+                    self.player.appendCraftResource(self.itemsDict, 29)
+                    return 1
+        return -1
+
+    def collectResources(self, posX, posY):
+        value = self.maps[self.player.mapId][posX][posY]
+        if value == 3 or value == 6 or value == 9:
+            if self.collectPlant(value) == 1:
+                self.movePlayerAddTimer(posX, posY, 10)
+        elif value == 4 or value == 7 or value == 10:
+            if self.collectStone(value) == 1:
+                self.movePlayerAddTimer(posX, posY, 10)
+        elif value == 5 or value == 8 or value == 11:
+            if self.collectWood(value) == 1:
+                self.movePlayerAddTimer(posX, posY, 10)
+
     def move(self, posX, posY):
         if 12 > self.maps[self.player.mapId][posX][posY] > 2:
+            self.collectResources(posX, posY)
             print("collecte ressource")
         elif self.maps[self.player.mapId][posX][posY] == 2:
             print("PNJ")
@@ -204,7 +297,6 @@ class Game:
             print("monster")
         elif self.maps[self.player.mapId][posX][posY] == -2 or self.maps[self.player.mapId][posX][posY] == -3:
             self.passPortal(self.maps[self.player.mapId][posX][posY])
-
         else:
             self.maps[self.player.mapId][posX][posY] = 1
             self.maps[self.player.mapId][self.player.posX][self.player.posY] = 0
@@ -325,7 +417,6 @@ player = Player(0, 1, 100, 4, 4, 0, 150, 100)
 game = Game(fillAllMaps(initAllMaps(10, 10)), player, [])
 
 game.player.newGameInventory(game.itemsDict)
-
 
 size = width, height = len(game.maps[game.player.mapId]) * 32, len(game.maps[game.player.mapId][0]) * 32
 screen = pygame.display.set_mode(size)
