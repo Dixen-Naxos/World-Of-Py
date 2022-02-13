@@ -1,4 +1,4 @@
-import random,copy
+import random, copy, pygame, sys, os, time
 
 
 class Item:
@@ -65,7 +65,7 @@ class Game:
     def displayMap(self):
         for x in range(len(self.maps[game.player.mapId])):
             for y in range(len(self.maps[game.player.mapId][0])):
-                print(self.maps[game.player.mapId][x][y], end=" ")
+                print(self.maps[game.player.mapId][x][y], sep="\t", end=" ")
             print("")
 
     @staticmethod
@@ -147,6 +147,57 @@ class Game:
             craftsDict[i] = Craft(itemId[i], idResource1[i], nbResource1[i], idResource2[i], nbResource2, zone[i])
         return craftsDict
 
+    def move(self, posX, posY):
+        if 12 > self.maps[self.player.mapId][posX][posY] > 2:
+            print("collecte ressource")
+        elif self.maps[self.player.mapId][posX][posY] == 2:
+            print("PNJ")
+        elif self.maps[self.player.mapId][posX][posY] == -1:
+            print("Mur")
+        elif 22 > self.maps[self.player.mapId][posX][posY] > 11:
+            print("monster")
+        elif self.maps[self.player.mapId][posX][posY] == -2 or self.maps[self.player.mapId][posX][posY] == -3:
+            print("portail")
+        else:
+            self.maps[self.player.mapId][posX][posY] = 1
+            self.maps[self.player.mapId][self.player.posX][self.player.posY] = 0
+            self.player.posX, self.player.posY = posX, posY
+
+    def checkCanMove(self, choice):
+        match choice:
+            case 1:
+                if self.player.posX != 0:
+                    self.move(self.player.posX - 1, self.player.posY)
+                else:
+                    print("pas possible")
+            case 2:
+                if self.player.posY != len(self.maps[self.player.mapId][0]) - 1:
+                    self.move(self.player.posX, self.player.posY + 1)
+                else:
+                    print("pas possible")
+            case 3:
+                if self.player.posX != len(self.maps[self.player.mapId]) - 1:
+                    self.move(self.player.posX + 1, self.player.posY)
+                else:
+                    print("pas possible")
+            case 4:
+                if self.player.posY != 0:
+                    self.move(self.player.posX, self.player.posY - 1)
+                else:
+                    print("pas possible")
+
+    def fillRender(self, screen):
+        image = pygame.image.load("resources/textures/0.png")
+        for x in range(len(self.maps[self.player.mapId])):
+            for y in range(len(self.maps[self.player.mapId][0])):
+                screen.blit(image, [x * 32, y * 32])
+
+    def renderMap(self, screen):
+        for x in range(len(self.maps[self.player.mapId])):
+            for y in range(len(self.maps[self.player.mapId][0])):
+                image = pygame.image.load("resources/textures/" + str(self.maps[self.player.mapId][x][y]) + ".png")
+                screen.blit(image, [y * 32, x * 32])
+
 
 def initMap(height, width):
     map = [[0 for x in range(width)] for y in range(height)]
@@ -219,13 +270,44 @@ def fillAllMaps(maps):
     return maps
 
 
+
+
+pygame.init()
+black = 0, 0, 0
+
+
 player = Player(0, 1, 100, 4, 4, 0, 150, 100)
 
 game = Game(fillAllMaps(initAllMaps(10, 10)), player, [])
 
 game.player.newGameInventory(game.itemsDict)
-print(game.itemsDict[1].durability, game.player.inventory[0].durability)
-game.player.inventory[0].durability = game.player.inventory[0].durability - 1
-print(game.itemsDict[1].durability, game.player.inventory[0].durability)
+size = width, height = len(game.maps[game.player.mapId]) * 32, len(game.maps[game.player.mapId][0]) * 32
+screen = pygame.display.set_mode(size)
 
 game.displayMap()
+game.fillRender(screen)
+game.renderMap(screen)
+while 1:
+    for event in pygame.event.get():
+        match event.type:
+            case pygame.QUIT:
+                sys.exit()
+            case pygame.KEYUP:
+                match event.key:
+                    case pygame.K_ESCAPE:
+                        sys.exit()
+                    case pygame.K_z:
+                        game.checkCanMove(1)
+
+                    case pygame.K_d:
+                        game.checkCanMove(2)
+
+                    case pygame.K_s:
+                        game.checkCanMove(3)
+
+                    case pygame.K_q:
+                        game.checkCanMove(4)
+
+    game.fillRender(screen)
+    game.renderMap(screen)
+    pygame.display.flip()
