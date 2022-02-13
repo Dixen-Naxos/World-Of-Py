@@ -119,10 +119,11 @@ class Game:
                      "../resources/textures/monstres/glados.png",
                      "../resources/textures/monstres/sananes.png",
                      "../resources/textures/monstres/dragon.png",
-                     "../resources/textures/monstres/armand_jesus.png", ]
+                     "../resources/textures/monstres/armand_jesus.png"]
 
-        for i in range(len(names)):
+        for i in range(len(names) - 1):
             monstersDict[i + 12] = Monster(names[i], hp[i], att[i], defense[i], xp[i], imagePath[i])
+        monstersDict[99] = Monster(names[-1], hp[-1], att[-1], defense[-1], xp[-1], imagePath[-1])
         return monstersDict
 
     @staticmethod
@@ -203,7 +204,7 @@ class Game:
             print("monster")
         elif self.maps[self.player.mapId][posX][posY] == -2 or self.maps[self.player.mapId][posX][posY] == -3:
             self.passPortal(self.maps[self.player.mapId][posX][posY])
-            print("portail")
+
         else:
             self.maps[self.player.mapId][posX][posY] = 1
             self.maps[self.player.mapId][self.player.posX][self.player.posY] = 0
@@ -317,15 +318,17 @@ def fillAllMaps(maps):
 
 
 pygame.init()
-black = 0, 0, 0
 
 player = Player(0, 1, 100, 4, 4, 0, 150, 100)
 
 game = Game(fillAllMaps(initAllMaps(10, 10)), player, [])
 
 game.player.newGameInventory(game.itemsDict)
+
+
 size = width, height = len(game.maps[game.player.mapId]) * 32, len(game.maps[game.player.mapId][0]) * 32
 screen = pygame.display.set_mode(size)
+
 game.player.level = 5
 
 game.fillRender(screen)
@@ -351,7 +354,7 @@ while 1:
 
                     case pygame.K_q:
                         game.checkCanMove(4)
-                        
+
                 game.fillRender(screen)
                 game.renderMap(screen)
                 pygame.display.flip()
