@@ -1,4 +1,4 @@
-import random, copy, pygame, sys, os, time
+import random, copy, pygame, sys, os, time, json
 
 
 class Item:
@@ -80,6 +80,24 @@ class Game:
         self.craftsDict = self.initCraftsDict()
         self.monstersDict = self.initMonstersDict()
         self.storage = storage
+
+    def saveGame(self):
+        pathToSave = os.path.abspath("resources/save.json")
+        f = open(pathToSave, "w")
+        jsonDict = {'maps': self.maps,
+                    'storage': self.storage,
+                    'player': {'currentExp': self.player.currentExp,
+                               'level': self.player.level,
+                               'currentHp': self.player.currentHp,
+                               'posX': self.player.posX,
+                               'posY': self.player.posY,
+                               'mapId': self.player.mapId,
+                               }
+                    }
+        jsonDict['player']['inventory'] = [elt.__dict__ for elt in self.player.inventory]
+        jsonStr = json.dumps(jsonDict)
+        f.write(jsonStr)
+        f.close()
 
     def displayMap(self):
         for x in range(len(self.maps[game.player.mapId])):
@@ -288,7 +306,7 @@ class Game:
     def move(self, posX, posY):
         if 12 > self.maps[self.player.mapId][posX][posY] > 2:
             self.collectResources(posX, posY)
-            print("collecte ressource")
+            self.decrementTimers()
         elif self.maps[self.player.mapId][posX][posY] == 2:
             print("PNJ")
         elif self.maps[self.player.mapId][posX][posY] == -1:
@@ -434,6 +452,7 @@ while 1:
             case pygame.KEYUP:
                 match event.key:
                     case pygame.K_ESCAPE:
+                        game.saveGame()
                         sys.exit()
                     case pygame.K_z:
                         game.checkCanMove(1)
