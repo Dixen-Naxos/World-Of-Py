@@ -372,6 +372,8 @@ class Game:
     def gamePlay(self):
         size = width, height = len(game.maps[game.player.mapId]) * 32, len(game.maps[game.player.mapId][0]) * 32
         screen = pygame.display.set_mode(size)
+        pygame.mixer.music.load("resources/music/Battle.mp3")
+        pygame.mixer.music.play(-1)
         game.fillRender(screen)
         game.renderMap(screen)
         pygame.display.flip()
@@ -414,6 +416,7 @@ class Game:
                             case pygame.K_ESCAPE:
                                 sys.exit()
                             case pygame.K_1:
+                                pygame.mixer.music.unload()
                                 self.gamePlay()
                                 self.size = width, height = 1280, 720
                                 self.screen = pygame.display.set_mode(self.size)
@@ -427,6 +430,8 @@ class Game:
     def mainMenu(self):
         self.size = width, height = 1280, 720
         self.screen = pygame.display.set_mode(self.size)
+        pygame.mixer.music.load("resources/music/MainMenu.mp3")
+        pygame.mixer.music.play(-1)
         image = pygame.image.load("resources/textures/fonds/MainMenu.png")
         self.screen.blit(image, [0, 0])
         pygame.display.flip()
@@ -442,9 +447,13 @@ class Game:
                             case pygame.K_1:
                                 self.player.newGameInventory(self.itemsDict)
                                 self.turnMenu()
+                                pygame.mixer.music.load("resources/music/MainMenu.mp3")
+                                pygame.mixer.music.play(-1)
                             case pygame.K_2:
                                 self.loadGame()
                                 self.turnMenu()
+                                pygame.mixer.music.load("resources/music/MainMenu.mp3")
+                                pygame.mixer.music.play(-1)
                             case pygame.K_0:
                                 sys.exit()
                         self.screen.blit(image, [0, 0])
@@ -523,46 +532,15 @@ def fillAllMaps(maps):
 
 
 pygame.init()
-
+pygame.mixer.init()
+pygame.mixer.music.set_volume(0.1)
 player = Player(0, 1, 100, 4, 4, 0)
 
 game = Game(fillAllMaps(initAllMaps(10, 10)), player, [])
 
 game.player.newGameInventory(game.itemsDict)
 
-size = width, height = len(game.maps[game.player.mapId]) * 32, len(game.maps[game.player.mapId][0]) * 32
-screen = pygame.display.set_mode(size)
-game.size = size
-game.screen = screen
+
 game.player.level = 5
 
 game.mainMenu()
-"""
-game.fillRender(screen)
-game.renderMap(screen)
-pygame.display.flip()
-while 1:
-    for event in pygame.event.get():
-        match event.type:
-            case pygame.QUIT:
-                sys.exit()
-            case pygame.KEYUP:
-                match event.key:
-                    case pygame.K_ESCAPE:
-                        game.saveGame()
-                        sys.exit()
-                    case pygame.K_z:
-                        game.checkCanMove(1)
-
-                    case pygame.K_d:
-                        game.checkCanMove(2)
-
-                    case pygame.K_s:
-                        game.checkCanMove(3)
-
-                    case pygame.K_q:
-                        game.checkCanMove(4)
-
-                game.fillRender(screen)
-                game.renderMap(screen)
-                pygame.display.flip()"""
