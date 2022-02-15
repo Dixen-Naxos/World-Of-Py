@@ -80,6 +80,8 @@ class Game:
         self.craftsDict = self.initCraftsDict()
         self.monstersDict = self.initMonstersDict()
         self.storage = storage
+        self.size = None
+        self.screen = None
 
     def saveGame(self):
         pathToSave = os.path.abspath("resources/save.json")
@@ -98,6 +100,16 @@ class Game:
         jsonStr = json.dumps(jsonDict)
         f.write(jsonStr)
         f.close()
+
+    def loadGame(self):
+        pathToSave = os.path.abspath("resources/save.json")
+        f = open(pathToSave, "r")
+        data = json.load(f)
+        self.maps = data['maps']
+        self.storage = data['storage']
+
+        for i in data['player']:
+
 
     def displayMap(self):
         for x in range(len(self.maps[game.player.mapId])):
@@ -356,6 +368,86 @@ class Game:
                 image = pygame.image.load("resources/textures/" + str(self.maps[self.player.mapId][x][y]) + ".png")
                 screen.blit(image, [y * 32, x * 32])
 
+    def gamePlay(self):
+        size = width, height = len(game.maps[game.player.mapId]) * 32, len(game.maps[game.player.mapId][0]) * 32
+        screen = pygame.display.set_mode(size)
+        game.fillRender(screen)
+        game.renderMap(screen)
+        pygame.display.flip()
+        playOn = 1
+        while playOn:
+            for event in pygame.event.get():
+                match event.type:
+                    case pygame.QUIT:
+                        sys.exit()
+                    case pygame.KEYUP:
+                        match event.key:
+                            case pygame.K_ESCAPE:
+                                playOn = 0
+                            case pygame.K_z:
+                                game.checkCanMove(1)
+                            case pygame.K_d:
+                                game.checkCanMove(2)
+                            case pygame.K_s:
+                                game.checkCanMove(3)
+                            case pygame.K_q:
+                                game.checkCanMove(4)
+                        game.fillRender(screen)
+                        game.renderMap(screen)
+                        pygame.display.flip()
+
+    def turnMenu(self):
+        self.size = width, height = 1280, 720
+        self.screen = pygame.display.set_mode(self.size)
+        image = pygame.image.load("resources/textures/fonds/TurnMenu.png")
+        self.screen.blit(image, [0, 0])
+        pygame.display.flip()
+        menuOn = 1
+        while menuOn:
+            for event in pygame.event.get():
+                match event.type:
+                    case pygame.QUIT:
+                        menuOn = 0
+                    case pygame.KEYUP:
+                        match event.key:
+                            case pygame.K_ESCAPE:
+                                sys.exit()
+                            case pygame.K_1:
+                                self.gamePlay()
+                                self.size = width, height = 1280, 720
+                                self.screen = pygame.display.set_mode(self.size)
+                            case pygame.K_2:
+                                self.saveGame()
+                            case pygame.K_0:
+                                menuOn = 0
+                        self.screen.blit(image, [0, 0])
+                        pygame.display.flip()
+
+    def mainMenu(self):
+        self.size = width, height = 1280, 720
+        self.screen = pygame.display.set_mode(self.size)
+        image = pygame.image.load("resources/textures/fonds/MainMenu.png")
+        self.screen.blit(image, [0, 0])
+        pygame.display.flip()
+        while 1:
+            for event in pygame.event.get():
+                match event.type:
+                    case pygame.QUIT:
+                        sys.exit()
+                    case pygame.KEYUP:
+                        match event.key:
+                            case pygame.K_ESCAPE:
+                                sys.exit()
+                            case pygame.K_1:
+                                self.player.newGameInventory(self.itemsDict)
+                                self.turnMenu()
+                            case pygame.K_2:
+                                self.loadGame()
+                            case pygame.K_0:
+                                sys.exit()
+                        self.screen.blit(image, [0, 0])
+                        pygame.display.flip()
+
 
 def initMap(height, width):
     map = [[0 for x in range(width)] for y in range(height)]
@@ -438,9 +530,12 @@ game.player.newGameInventory(game.itemsDict)
 
 size = width, height = len(game.maps[game.player.mapId]) * 32, len(game.maps[game.player.mapId][0]) * 32
 screen = pygame.display.set_mode(size)
-
+game.size = size
+game.screen = screen
 game.player.level = 5
 
+game.mainMenu()
+"""
 game.fillRender(screen)
 game.renderMap(screen)
 pygame.display.flip()
@@ -468,4 +563,4 @@ while 1:
 
                 game.fillRender(screen)
                 game.renderMap(screen)
-                pygame.display.flip()
+                pygame.display.flip()"""
