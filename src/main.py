@@ -23,19 +23,21 @@ class Monster:
 
 
 class Player:
-    def __init__(self, currentExp, level, currentHp, posX, posY, mapId, hpEvolution, xpEvolution, inventory=None):
+    def __init__(self, currentExp, level, currentHp, posX, posY, mapId, inventory=None):
         if inventory is None:
             self.inventory = []
         else:
-            self.inventory = inventory
+            for elt in inventory:
+                self.inventory = []
+                self.inventory.append(Item(*list(elt.values())))
         self.currentExp = currentExp
         self.level = level
         self.currentHp = currentHp
         self.posX = posX
         self.posY = posY
         self.mapId = mapId
-        self.hpEvolution = hpEvolution
-        self.xpEvolution = xpEvolution
+        self.hpEvolution = level * 50
+        self.xpEvolution = level * 50
 
     def newGameInventory(self, itemDict):
         self.inventory.append(copy.deepcopy(itemDict[1]))
@@ -107,9 +109,8 @@ class Game:
         data = json.load(f)
         self.maps = data['maps']
         self.storage = data['storage']
-
-        for i in data['player']:
-
+        playerList = list(data['player'].values())
+        self.player = Player(*playerList)
 
     def displayMap(self):
         for x in range(len(self.maps[game.player.mapId])):
@@ -443,6 +444,7 @@ class Game:
                                 self.turnMenu()
                             case pygame.K_2:
                                 self.loadGame()
+                                self.turnMenu()
                             case pygame.K_0:
                                 sys.exit()
                         self.screen.blit(image, [0, 0])
@@ -522,7 +524,7 @@ def fillAllMaps(maps):
 
 pygame.init()
 
-player = Player(0, 1, 100, 4, 4, 0, 150, 100)
+player = Player(0, 1, 100, 4, 4, 0)
 
 game = Game(fillAllMaps(initAllMaps(10, 10)), player, [])
 
