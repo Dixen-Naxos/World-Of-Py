@@ -515,12 +515,12 @@ def placeMonsters(map, zone):
 
 
 def fillMap(map, zone):
-    if zone == 3:
+    if zone == 2:
         map = placeThings(map, 99, 0, 1)
         map = placeThings(map, -3, 0, 1)
-    elif zone == 2:
-        map = placeThings(map, -2, 0, 1)
+    elif zone == 1:
         map = placeThings(map, -3, 0, 1)
+        map = placeThings(map, -2, 0, 1)
     else:
         map = placeThings(map, -2, 0, 1)
 
@@ -535,7 +535,7 @@ def fillMap(map, zone):
 
 def fillAllMaps(maps):
     maps[0][4][4] = 1
-    for i in range(0, 6, 3):
+    for i in range(0, 9, 3):
         maps[i] = fillMap(maps[i], int(i / 3))
         fillBaseMap(maps[i], maps[2 + i])
     return maps
@@ -547,10 +547,5 @@ pygame.mixer.music.set_volume(0.1)
 player = Player(0, 1, 100, 4, 4, 0)
 
 game = Game(fillAllMaps(initAllMaps(10, 10)), player, [])
-
-game.player.newGameInventory(game.itemsDict)
-
-
-game.player.level = 5
 
 game.mainMenu()
