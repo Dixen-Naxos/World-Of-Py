@@ -224,22 +224,27 @@ class Game:
             self.maps[self.player.mapId][self.player.posX][self.player.posY] = 0
             self.player.mapId = 3
             self.findPortal(idPortal)
+            pygame.mixer.music.load("resources/music/Zone_2.mp3")
             # display text with pos
         elif self.player.mapId == 6:
             self.maps[self.player.mapId][self.player.posX][self.player.posY] = 0
             self.player.mapId = 3
             self.findPortal(idPortal)
+            pygame.mixer.music.load("resources/music/Zone_2.mp3")
         elif self.player.mapId == 3:
             if idPortal == -2:
                 self.maps[self.player.mapId][self.player.posX][self.player.posY] = 0
                 self.player.mapId = 0
                 self.findPortal(idPortal)
+                pygame.mixer.music.load("resources/music/Zone_1.mp3")
             elif idPortal == -3 and self.player.level >= 7:
                 self.maps[self.player.mapId][self.player.posX][self.player.posY] = 0
                 self.player.mapId = 6
                 self.findPortal(idPortal)
+                pygame.mixer.music.load("resources/music/Zone_3.mp3")
         else:
             return 0
+        pygame.mixer.music.play(-1)
         size = width, height = len(game.maps[game.player.mapId]) * 32, len(game.maps[game.player.mapId][0]) * 32
         screen = pygame.display.set_mode(size)
 
@@ -372,7 +377,12 @@ class Game:
     def gamePlay(self):
         size = width, height = len(game.maps[game.player.mapId]) * 32, len(game.maps[game.player.mapId][0]) * 32
         screen = pygame.display.set_mode(size)
-        pygame.mixer.music.load("resources/music/Battle.mp3")
+        if self.player.mapId == 0:
+            pygame.mixer.music.load("resources/music/Zone_1.mp3")
+        elif self.player.mapId == 3:
+            pygame.mixer.music.load("resources/music/Zone_2.mp3")
+        else:
+            pygame.mixer.music.load("resources/music/Zone_3.mp3")
         pygame.mixer.music.play(-1)
         game.fillRender(screen)
         game.renderMap(screen)
