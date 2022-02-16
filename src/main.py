@@ -46,10 +46,8 @@ class Player:
         self.inventory.append(copy.deepcopy(itemDict[4]))
 
     def checkInInventoryAndUseTool(self, itemId):
-        print("check tool")
         for i in range(len(self.inventory)):
             if self.inventory[i].id == itemId and self.inventory[i].durability >= 1:
-                print("found")
                 self.inventory[i].durability -= 1
                 return 1
         return -1
@@ -121,14 +119,13 @@ class Game:
     @staticmethod
     def initItemsDict():
         itemsDict = {}
-        names = ["Epee en bois", "Pioche en bois", "Serpe en bois", "Hache en bois", "Sapin", "Pierre",
-                 "Herbe", "Epee en pierre", "Lance en pierre", "Marteau en pierre", "Plastron en pierre",
-                 "Pioche en pierre", "Serpe en pierre", "Hache en pierre", "Potion de vie I", "Hetre", "Fer",
-                 "Lavande", "Epee en fer", "Lance en fer", "Marteau en fer", "Plastron en fer",
-                 "Pioche en fer", "Serpe en fer", "Hache en fer", "Potion de vie II", "Chene", "Diamant",
-                 "Chanvre", "Epee en diamant", "Lance en diamant", "Marteau en diamant",
-                 "Plastron en diamant",
-                 "Potion de vie III"]
+        names = ["Epee en bois",  "Serpe en bois", "Pioche en bois", "Hache en bois", "Herbe", "Pierre",
+                 "Sapin", "Epee en pierre", "Lance en pierre", "Marteau en pierre", "Plastron en pierre",
+                 "Serpe en pierre", "Pioche en pierre", "Hache en pierre", "Potion de vie I", "Lavande", "Fer",
+                 "Hetre", "Epee en fer", "Lance en fer", "Marteau en fer", "Plastron en fer",
+                 "Serpe en fer", "Pioche en fer", "Hache en fer", "Potion de vie II", "Chanvre", "Diamant",
+                 "Chene", "Epee en diamant", "Lance en diamant", "Marteau en diamant",
+                 "Plastron en diamant","Potion de vie III"]
 
         types = ["Arme", "Outil", "Outil", "Outil", "Ressource de craft", "Ressource de craft",
                  "Ressource de craft", "Arme", "Arme", "Arme", "Armure",
@@ -146,7 +143,7 @@ class Game:
                       0, 40, 0]
 
         for i in range(len(names)):
-            itemsDict[i + 1] = Item(i + 1, names[i], types[i], damages[i], durability[i], 0, protection[i])
+            itemsDict[i + 1] = Item(i + 1, names[i], types[i], damages[i], durability[i], 1, protection[i])
         return itemsDict
 
     @staticmethod
@@ -179,11 +176,11 @@ class Game:
     @staticmethod
     def initCraftsDict():
         craftsDict = {}
-        itemId = [1, 8, 19, 30, 9, 20, 31, 10, 21, 32, 11, 22, 33, 2, 12, 23, 4, 14, 25, 3, 13, 24, 15,
+        itemId = [1, 8, 19, 30, 9, 20, 31, 10, 21, 32, 11, 22, 33, 3, 13, 24, 4, 14, 25, 2, 12, 23, 15,
                   26, 34]
 
-        idResource1 = [5, 5, 16, 27, 5, 16, 27, 5, 16, 27, 6, 17, 28, 5, 5, 16, 5, 5, 16, 5, 5, 16, 7,
-                       18, 29]
+        idResource1 = [7, 7, 18, 29, 7, 18, 29, 7, 18, 29, 6, 17, 28, 7, 7, 18, 7, 7, 18, 7, 7, 18, 5,
+                       16, 27]
 
         nbResource1 = [3, 2, 2, 2, 3, 3, 3, 2, 2, 2, 10, 12, 16, 3, 2, 2, 3, 2, 2, 3, 2, 2, 2, 2, 2]
 
@@ -255,70 +252,19 @@ class Game:
         self.player.posX = posX
         self.player.posY = posY
 
-    def collectStone(self, value):
-        match value:
-            case 4:
-                print("test Stone")
-                if self.player.checkInInventoryAndUseTool(2) != -1 or self.player.checkInInventoryAndUseTool(
-                        12) != -1 or self.player.checkInInventoryAndUseTool(23) != -1:
-                    self.player.appendCraftResource(self.itemsDict, 6)
-                    return 1
-            case 7:
-                if self.player.checkInInventoryAndUseTool(12) != -1 or self.player.checkInInventoryAndUseTool(23) != -1:
-                    self.player.appendCraftResource(self.itemsDict, 17)
-                    return 1
-            case 10:
-                if self.player.checkInInventoryAndUseTool(23) != -1:
-                    self.player.appendCraftResource(self.itemsDict, 28)
-                    return 1
-        return -1
-
-    def collectWood(self, value):
-        match value:
-            case 5:
-                print("test wood")
-                if self.player.checkInInventoryAndUseTool(4) != -1 or self.player.checkInInventoryAndUseTool(
-                        14) != -1 or self.player.checkInInventoryAndUseTool(25) != -1:
-                    self.player.appendCraftResource(self.itemsDict, 5)
-                    return 1
-            case 8:
-                if self.player.checkInInventoryAndUseTool(14) != -1 or self.player.checkInInventoryAndUseTool(25) != -1:
-                    self.player.appendCraftResource(self.itemsDict, 16)
-                    return 1
-            case 11:
-                if self.player.checkInInventoryAndUseTool(25) != -1:
-                    self.player.appendCraftResource(self.itemsDict, 27)
-                    return 1
-        return -1
-
-    def collectPlant(self, value):
-        match value:
-            case 3:
-                print("test plant")
-                if self.player.checkInInventoryAndUseTool(3) != -1 or self.player.checkInInventoryAndUseTool(
-                        13) != -1 or self.player.checkInInventoryAndUseTool(24) != -1:
-                    self.player.appendCraftResource(self.itemsDict, 7)
-                    return 1
-            case 6:
-                if self.player.checkInInventoryAndUseTool(13) != -1 or self.player.checkInInventoryAndUseTool(24) != -1:
-                    self.player.appendCraftResource(self.itemsDict, 18)
-                    return 1
-            case 9:
-                if self.player.checkInInventoryAndUseTool(24) != -1:
-                    self.player.appendCraftResource(self.itemsDict, 29)
-                    return 1
-        return -1
-
     def collectResources(self, posX, posY):
         value = self.maps[self.player.mapId][posX][posY]
-        if value == 3 or value == 6 or value == 9:
-            if self.collectPlant(value) == 1:
+        if value < 6:
+            if self.player.checkInInventoryAndUseTool(value - 1) != -1 or self.player.checkInInventoryAndUseTool(value + 9) != -1 or self.player.checkInInventoryAndUseTool(value + 20) != -1:
+                self.player.appendCraftResource(self.itemsDict, value + 2)
                 self.movePlayerAddTimer(posX, posY, 10)
-        elif value == 4 or value == 7 or value == 10:
-            if self.collectStone(value) == 1:
+        elif value < 9:
+            if self.player.checkInInventoryAndUseTool(value + 6) != -1 or self.player.checkInInventoryAndUseTool(value + 17) != -1:
+                self.player.appendCraftResource(self.itemsDict, value + 10)
                 self.movePlayerAddTimer(posX, posY, 10)
-        elif value == 5 or value == 8 or value == 11:
-            if self.collectWood(value) == 1:
+        else:
+            if self.player.checkInInventoryAndUseTool(value + 14) != -1:
+                self.player.appendCraftResource(self.itemsDict, value + 18)
                 self.movePlayerAddTimer(posX, posY, 10)
 
     def move(self, posX, posY):
