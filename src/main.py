@@ -1,4 +1,4 @@
-import random, copy, pygame, sys, os, time, json
+import random, copy, pygame, sys, os, time, json, math
 
 
 class Item:
@@ -36,7 +36,6 @@ class Player:
         self.posX = posX
         self.posY = posY
         self.mapId = mapId
-        self.hpEvolution = level * 50
         self.xpEvolution = level * 50
 
     def newGameInventory(self, itemDict):
@@ -61,6 +60,13 @@ class Player:
         if result == 0 and len(self.inventory) < 11:
             self.inventory.append(copy.deepcopy(itemDict[resourceId]))
 
+    def getValidWeapons(self):
+        tab = []
+        for i in range(len(self.inventory)):
+            if self.inventory[i].type == "Arme":
+                tab.append(i)
+        return tab
+
 
 class Craft:
     def __init__(self, itemId, idResource1, nbResource1, idResource2, nbResource2, zone):
@@ -82,6 +88,7 @@ class Game:
         self.storage = storage
         self.size = None
         self.screen = None
+        self.font = None
 
     def saveGame(self):
         pathToSave = os.path.abspath("resources/save.json")
@@ -119,13 +126,13 @@ class Game:
     @staticmethod
     def initItemsDict():
         itemsDict = {}
-        names = ["Epee en bois",  "Serpe en bois", "Pioche en bois", "Hache en bois", "Herbe", "Pierre",
+        names = ["Epee en bois", "Serpe en bois", "Pioche en bois", "Hache en bois", "Herbe", "Pierre",
                  "Sapin", "Epee en pierre", "Lance en pierre", "Marteau en pierre", "Plastron en pierre",
                  "Serpe en pierre", "Pioche en pierre", "Hache en pierre", "Potion de vie I", "Lavande", "Fer",
                  "Hetre", "Epee en fer", "Lance en fer", "Marteau en fer", "Plastron en fer",
                  "Serpe en fer", "Pioche en fer", "Hache en fer", "Potion de vie II", "Chanvre", "Diamant",
                  "Chene", "Epee en diamant", "Lance en diamant", "Marteau en diamant",
-                 "Plastron en diamant","Potion de vie III"]
+                 "Plastron en diamant", "Potion de vie III"]
 
         types = ["Arme", "Outil", "Outil", "Outil", "Ressource de craft", "Ressource de craft",
                  "Ressource de craft", "Arme", "Arme", "Arme", "Armure",
@@ -159,14 +166,14 @@ class Game:
         defense = [1, 0, 3, 6, 40, 15, 1, 2, 40, 20]
 
         xp = [5, 4, 8, 9, 60, 15, 20, 22, 60, 60]
-        imagePath = ["../resources/textures/monstres/sanglier.png",
-                     "../resources/textures/monstres/slime.png", "../resources/textures/monstres/macron.png",
-                     "../resources/textures/monstres/petit_ours_brun.png",
-                     "../resources/textures/monstres/flan.png", "../resources/textures/monstres/caribou.png",
-                     "../resources/textures/monstres/glados.png",
-                     "../resources/textures/monstres/sananes.png",
-                     "../resources/textures/monstres/dragon.png",
-                     "../resources/textures/monstres/armand_jesus.png"]
+        imagePath = ["resources/textures/monstres/sanglier.png",
+                     "resources/textures/monstres/slime.png", "resources/textures/monstres/macron.png",
+                     "resources/textures/monstres/petit_ours_brun.png",
+                     "resources/textures/monstres/flan.png", "resources/textures/monstres/caribou.png",
+                     "resources/textures/monstres/glados.png",
+                     "resources/textures/monstres/sananes.png",
+                     "resources/textures/monstres/dragon.png",
+                     "resources/textures/monstres/armand_jesus.png"]
 
         for i in range(len(names) - 1):
             monstersDict[i + 12] = Monster(names[i], hp[i], att[i], defense[i], xp[i], imagePath[i])
@@ -221,29 +228,23 @@ class Game:
             self.maps[self.player.mapId][self.player.posX][self.player.posY] = 0
             self.player.mapId = 3
             self.findPortal(idPortal)
-            pygame.mixer.music.load("resources/music/Zone_2.mp3")
             # display text with pos
         elif self.player.mapId == 6:
             self.maps[self.player.mapId][self.player.posX][self.player.posY] = 0
             self.player.mapId = 3
             self.findPortal(idPortal)
-            pygame.mixer.music.load("resources/music/Zone_2.mp3")
         elif self.player.mapId == 3:
             if idPortal == -2:
                 self.maps[self.player.mapId][self.player.posX][self.player.posY] = 0
                 self.player.mapId = 0
                 self.findPortal(idPortal)
-                pygame.mixer.music.load("resources/music/Zone_1.mp3")
             elif idPortal == -3 and self.player.level >= 7:
                 self.maps[self.player.mapId][self.player.posX][self.player.posY] = 0
                 self.player.mapId = 6
                 self.findPortal(idPortal)
-                pygame.mixer.music.load("resources/music/Zone_3.mp3")
         else:
             return 0
-        pygame.mixer.music.play(-1)
-        size = width, height = len(game.maps[game.player.mapId]) * 32, len(game.maps[game.player.mapId][0]) * 32
-        screen = pygame.display.set_mode(size)
+        self.zoneSetup()
 
     def movePlayerAddTimer(self, posX, posY, timer):
         self.maps[self.player.mapId][self.player.posX][self.player.posY] = 0
@@ -255,11 +256,13 @@ class Game:
     def collectResources(self, posX, posY):
         value = self.maps[self.player.mapId][posX][posY]
         if value < 6:
-            if self.player.checkInInventoryAndUseTool(value - 1) != -1 or self.player.checkInInventoryAndUseTool(value + 9) != -1 or self.player.checkInInventoryAndUseTool(value + 20) != -1:
+            if self.player.checkInInventoryAndUseTool(value - 1) != -1 or self.player.checkInInventoryAndUseTool(
+                    value + 9) != -1 or self.player.checkInInventoryAndUseTool(value + 20) != -1:
                 self.player.appendCraftResource(self.itemsDict, value + 2)
                 self.movePlayerAddTimer(posX, posY, 10)
         elif value < 9:
-            if self.player.checkInInventoryAndUseTool(value + 6) != -1 or self.player.checkInInventoryAndUseTool(value + 17) != -1:
+            if self.player.checkInInventoryAndUseTool(value + 6) != -1 or self.player.checkInInventoryAndUseTool(
+                    value + 17) != -1:
                 self.player.appendCraftResource(self.itemsDict, value + 10)
                 self.movePlayerAddTimer(posX, posY, 10)
         else:
@@ -276,7 +279,9 @@ class Game:
         elif self.maps[self.player.mapId][posX][posY] == -1:
             print("Mur")
         elif 22 > self.maps[self.player.mapId][posX][posY] > 11:
-            print("monster")
+            if self.battle(posX, posY) == -1:
+                print("Pas d'arme")
+            self.zoneSetup()
         elif self.maps[self.player.mapId][posX][posY] == -2 or self.maps[self.player.mapId][posX][posY] == -3:
             self.passPortal(self.maps[self.player.mapId][posX][posY])
         else:
@@ -320,9 +325,82 @@ class Game:
                 image = pygame.image.load("resources/textures/" + str(self.maps[self.player.mapId][x][y]) + ".png")
                 screen.blit(image, [y * 32, x * 32])
 
-    def gamePlay(self):
-        size = width, height = len(game.maps[game.player.mapId]) * 32, len(game.maps[game.player.mapId][0]) * 32
-        screen = pygame.display.set_mode(size)
+    def attack(self, weapon, monster):
+        monster.hp -= math.ceil(self.player.inventory[weapon].damage * (1 - monster.res / 100))
+        if monster.hp == 0:
+            if self.player.currentExp + monster.xp >= self.player.xpEvolution:
+                self.player.currentExp = 0
+                self.player.level += 1
+                self.player.currentHp = self.player.level * 50
+                self.player.xpEvolution = self.player.level * 50
+            else:
+                self.player.currentExp = self.player.currentExp + monster.xp
+            return 1
+
+    def battleMenu(self, weapon, monster):
+        pygame.mixer.music.load("resources/music/Battle.mp3")
+        pygame.mixer.music.play(-1)
+        image = pygame.image.load("resources/textures/fonds/battleMenu.png")
+        monsterImg = pygame.image.load(monster.imagePath)
+        self.screen.blit(image, [0, 0])
+        self.screen.blit(monsterImg, [500, 60])
+        pygame.display.flip()
+        while 1:
+            for event in pygame.event.get():
+                match event.type:
+                    case pygame.QUIT:
+                        sys.exit()
+                    case pygame.KEYUP:
+                        match event.key:
+                            case pygame.K_1:
+                                if self.attack(weapon, monster) == 1:
+                                    return 1
+                            case pygame.K_2:
+                                print("potions")
+                            case pygame.K_0:
+                                print("fuite")
+                        print(monster.name, monster.hp, monster.att, monster.res)
+                        self.screen.blit(image, [0, 0])
+                        self.screen.blit(monsterImg, [500, 60])
+                        pygame.display.flip()
+
+    def weaponChoice(self, validWeapons):
+        self.size = width, height = 1280, 720
+        self.screen = pygame.display.set_mode(self.size)
+        image = pygame.image.load("resources/textures/fonds/battle.jpg")
+        while 1:
+            for event in pygame.event.get():
+                match event.type:
+                    case pygame.QUIT:
+                        sys.exit()
+                    case pygame.KEYUP:
+                        if 0 < event.scancode - 29 < len(validWeapons) or event.scancode - 29 == 10:
+                            if event.scancode - 29 == 10:
+                                choice = 0
+                            else:
+                                choice = event.scancode - 29
+                            return validWeapons[choice]
+            self.screen.blit(image, [0, 0])
+            for i in range(len(validWeapons)):
+                weaponText = str(i) + " - " + self.player.inventory[validWeapons[i]].name + " dégâts : " + str(
+                    self.player.inventory[validWeapons[i]].damage)
+                game.font.render_to(game.screen, (100, 65 + i * 65), weaponText, (0, 0, 0))
+            pygame.display.flip()
+
+    def battle(self, posX, posY):
+        monster = copy.deepcopy(self.monstersDict[self.maps[self.player.mapId][posX][posY]])
+        validWeapons = self.player.getValidWeapons()
+        if not validWeapons:
+            return -1
+        else:
+            weapon = self.weaponChoice(validWeapons)
+        res = self.battleMenu(weapon, monster)
+        if res == 1:
+            self.movePlayerAddTimer(posX, posY, 15)
+
+    def zoneSetup(self):
+        self.size = width, height = len(game.maps[game.player.mapId]) * 32, len(game.maps[game.player.mapId][0]) * 32
+        self.screen = pygame.display.set_mode(self.size)
         if self.player.mapId == 0:
             pygame.mixer.music.load("resources/music/Zone_1.mp3")
         elif self.player.mapId == 3:
@@ -330,8 +408,11 @@ class Game:
         else:
             pygame.mixer.music.load("resources/music/Zone_3.mp3")
         pygame.mixer.music.play(-1)
-        game.fillRender(screen)
-        game.renderMap(screen)
+
+    def gamePlay(self):
+        self.zoneSetup()
+        game.fillRender(self.screen)
+        game.renderMap(self.screen)
         pygame.display.flip()
         playOn = 1
         while playOn:
@@ -351,8 +432,8 @@ class Game:
                                 game.checkCanMove(3)
                             case pygame.K_q:
                                 game.checkCanMove(4)
-                        game.fillRender(screen)
-                        game.renderMap(screen)
+                        game.fillRender(self.screen)
+                        game.renderMap(self.screen)
                         pygame.display.flip()
 
     def turnMenu(self):
@@ -490,8 +571,8 @@ def fillAllMaps(maps):
 pygame.init()
 pygame.mixer.init()
 pygame.mixer.music.set_volume(0.1)
-player = Player(0, 1, 100, 4, 4, 0)
-
+player = Player(49, 1, 100, 4, 4, 0)
+print(player.xpEvolution)
 game = Game(fillAllMaps(initAllMaps(10, 10)), player, [])
-
+game.font = pygame.freetype.Font("resources/font/OpenSans-Regular.ttf", 24)
 game.mainMenu()
