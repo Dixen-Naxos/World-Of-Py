@@ -81,9 +81,14 @@ class Player:
                     del self.inventory[i]
                 return
 
-    def printInvetory(self):
-        for i in range(0, len(self.inventory)):
-            print(str(self.inventory[i].id) + " : " + str(self.inventory[i].name) + " : " + str(self.inventory[i].quantity))
+    def appendInventory(self, itemDict, itemId, quantity):
+        if itemDict[itemId].type == "Ressource de craft":
+            for i in range(0, quantity):
+                self.appendCraftResource(itemDict, itemId)
+        elif len(self.inventory) < 11:
+            while len(self.inventory) < 11 and quantity > 0:
+                self.inventory.append(copy.deepcopy(itemDict[itemId]))
+                quantity -= 1
 
 
 class Craft:
@@ -377,6 +382,7 @@ class Game:
                                 game.checkCanMove(3)
                             case pygame.K_q:
                                 game.checkCanMove(4)
+                        screen = pygame.display.set_mode(size)
                         game.fillRender(screen)
                         game.renderMap(screen)
                         pygame.display.flip()
@@ -465,7 +471,7 @@ class Game:
                                 pygame.mixer.music.load("../resources/music/MainMenu.mp3")
                                 pygame.mixer.music.play(-1)
                             case pygame.K_3:
-                                self.stockageMenu()
+                                self.storageMenu()
                                 pygame.mixer.music.load("../resources/music/MainMenu.mp3")
                                 pygame.mixer.music.play(-1)
                             case pygame.K_0:
@@ -508,7 +514,6 @@ class Game:
         imgCurseur = police.render("->", True, (0, 0, 0))
         self.screen.blit(imgCurseur, [25, 50 * posC])
         pygame.display.flip()
-        print(self.player.printInvetory())
         while 1:
             for event in pygame.event.get():
                 match event.type:
@@ -566,13 +571,18 @@ class Game:
                                    self.craftsDict[id].nbResource2)
         self.player.inventory.append(copy.deepcopy(self.itemsDict[self.craftsDict[id].itemId]))
 
-    def stockageMenu(self):
+    def storageMenu(self):
         self.size = width, height = 1280, 720
         self.screen = pygame.display.set_mode(self.size)
         pygame.mixer.music.load("../resources/music/MainMenu.mp3")
         pygame.mixer.music.play(-1)
-        image = pygame.image.load("../resources/textures/fonds/PNJMenu.png")
+        image = pygame.image.load("../resources/textures/fonds/586.jpg")
         self.screen.blit(image, [0, 0])
+        pygame.display.flip()
+        imgText = police.render("1 - Stocker", True, (0, 0, 0))
+        self.screen.blit(imgText, [100, 300])
+        imgText = police.render("2 - Retirer", True, (0, 0, 0))
+        self.screen.blit(imgText, [100, 500])
         pygame.display.flip()
         while 1:
             for event in pygame.event.get():
@@ -584,20 +594,160 @@ class Game:
                             case pygame.K_ESCAPE:
                                 sys.exit()
                             case pygame.K_1:
-                                self.player.repareItems()
+                                self.storeMenu()
                             case pygame.K_2:
-                                self.craftMenu()
-                                pygame.mixer.music.load("../resources/music/MainMenu.mp3")
-                                pygame.mixer.music.play(-1)
-                            case pygame.K_3:
-                                self.stockageMenu()
-                                pygame.mixer.music.load("../resources/music/MainMenu.mp3")
-                                pygame.mixer.music.play(-1)
+                                self.removeStorageMenu()
                             case pygame.K_0:
                                 return
                         self.screen.blit(image, [0, 0])
+                        imgText = police.render("1 - Stocker", True, (0, 0, 0))
+                        self.screen.blit(imgText, [100, 300])
+                        imgText = police.render("2 - Retirer", True, (0, 0, 0))
+                        self.screen.blit(imgText, [100, 500])
                         pygame.display.flip()
 
+    def storeMenu(self):
+        if len(self.player.inventory) == 0:
+            return
+        self.size = width, height = 1280, 720
+        self.screen = pygame.display.set_mode(self.size)
+        pygame.mixer.music.load("../resources/music/MainMenu.mp3")
+        pygame.mixer.music.play(-1)
+        image = pygame.image.load("../resources/textures/fonds/586.jpg")
+        self.screen.blit(image, [0, 0])
+        pygame.display.flip()
+        posC = 0
+        for i in range(0, len(self.player.inventory)):
+            imgText = police.render(str(self.player.inventory[i].quantity) + ' : ' + self.player.inventory[i].name, True, (0, 0, 0))
+            self.screen.blit(imgText, [200 * (i // 14) + 50, 50 * (i % 14) + 50])
+        imgCurseur = police.render("->", True, (0, 0, 0))
+        self.screen.blit(imgCurseur, [200 * (posC // 14) + 25, 50 * (posC % 14) + 50])
+        pygame.display.flip()
+        while 1:
+            for event in pygame.event.get():
+                match event.type:
+                    case pygame.QUIT:
+                        sys.exit()
+                    case pygame.KEYUP:
+                        match event.key:
+                            case pygame.K_ESCAPE:
+                                sys.exit()
+                            case pygame.K_z:
+                                if posC > 0:
+                                    posC -= 1
+                            case pygame.K_s:
+                                if posC < len(self.player.inventory) - 1:
+                                    posC += 1
+                            case pygame.K_RETURN:
+                                self.store(self.player.inventory[posC].id, self.quantityMenu(self.player.inventory[posC].quantity))
+                                if len(self.player.inventory) == 0:
+                                    return
+                                posC = 0
+                            case pygame.K_0:
+                                return
+                        self.screen.blit(image, [0, 0])
+                        for i in range(0, len(self.player.inventory)):
+                            imgText = police.render(str(self.player.inventory[i].quantity) + ' : ' + self.player.inventory[i].name, True, (0, 0, 0))
+                            self.screen.blit(imgText, [200 * (i // 14) + 50, 50 * (i % 14) + 50])
+                        imgCurseur = police.render("->", True, (0, 0, 0))
+                        self.screen.blit(imgCurseur, [200 * (posC // 14) + 25, 50 * (posC % 14) + 50])
+                        pygame.display.flip()
+
+    def removeStorageMenu(self):
+        self.size = width, height = 1280, 720
+        self.screen = pygame.display.set_mode(self.size)
+        pygame.mixer.music.load("../resources/music/MainMenu.mp3")
+        pygame.mixer.music.play(-1)
+        image = pygame.image.load("../resources/textures/fonds/586.jpg")
+        self.screen.blit(image, [0, 0])
+        pygame.display.flip()
+        posC = 0
+        for i in range(0, len(self.storage)):
+            imgText = police.render(str(self.storage[i][1]) + " : " + self.itemsDict[self.storage[i][0]].name, True, (0, 0, 0))
+            self.screen.blit(imgText, [200 * (i // 14) + 50, 50 * (i % 14) + 50])
+        imgCurseur = police.render("->", True, (0, 0, 0))
+        self.screen.blit(imgCurseur, [200 * (posC // 14) + 25, 50 * (posC % 14) + 50])
+        pygame.display.flip()
+        while 1:
+            for event in pygame.event.get():
+                match event.type:
+                    case pygame.QUIT:
+                        sys.exit()
+                    case pygame.KEYUP:
+                        match event.key:
+                            case pygame.K_ESCAPE:
+                                sys.exit()
+                            case pygame.K_z:
+                                if posC > 0:
+                                    posC -= 1
+                            case pygame.K_s:
+                                if posC < len(self.storage) - 1:
+                                    posC += 1
+                            case pygame.K_RETURN:
+                                self.unStore(posC, self.quantityMenu(self.storage[posC][1]))
+                                if len(self.storage) == 0:
+                                    return
+                                posC = 0
+                            case pygame.K_0:
+                                return
+                        self.screen.blit(image, [0, 0])
+                        for i in range(0, len(self.storage)):
+                            imgText = police.render(str(self.storage[i][1]) + " : " + self.itemsDict[self.storage[i][0]].name, True, (0, 0, 0))
+                            self.screen.blit(imgText, [200 * (i // 14) + 50, 50 * (i % 14) + 50])
+                        imgCurseur = police.render("->", True, (0, 0, 0))
+                        self.screen.blit(imgCurseur, [200 * (posC // 14) + 25, 50 * (posC % 14) + 50])
+                        pygame.display.flip()
+
+    def quantityMenu(self, max):
+        self.size = width, height = 1280, 720
+        self.screen = pygame.display.set_mode(self.size)
+        pygame.mixer.music.load("../resources/music/MainMenu.mp3")
+        pygame.mixer.music.play(-1)
+        image = pygame.image.load("../resources/textures/fonds/586.jpg")
+        self.screen.blit(image, [0, 0])
+        pygame.display.flip()
+        quantity = 0
+        imgQuantity = police.render("< " + str(quantity) + " >", True, (0, 0, 0))
+        self.screen.blit(imgQuantity, [600, 350])
+        pygame.display.flip()
+        while 1:
+            for event in pygame.event.get():
+                match event.type:
+                    case pygame.QUIT:
+                        sys.exit()
+                    case pygame.KEYUP:
+                        match event.key:
+                            case pygame.K_ESCAPE:
+                                sys.exit()
+                            case pygame.K_q:
+                                if quantity > 0:
+                                    quantity -= 1
+                            case pygame.K_d:
+                                if quantity < max:
+                                    quantity += 1
+                            case pygame.K_RETURN:
+                                return quantity
+                            case pygame.K_0:
+                                return 0
+                        self.screen.blit(image, [0, 0])
+                        imgQuantity = police.render("< " + str(quantity) + " >", True, (0, 0, 0))
+                        self.screen.blit(imgQuantity, [600, 350])
+                        pygame.display.flip()
+
+    def store(self, id, quantity):
+        player.removeItem(id, quantity)
+        for i in range(0, len(self.storage)):
+            if self.storage[i][0] == id:
+                self.storage[i][1] += quantity
+                return
+        self.storage.append([id, quantity])
+
+    def unStore(self, id, quantity):
+        self.player.appendInventory(self.itemsDict, self.itemsDict[self.storage[id][0]].id, quantity)
+        if quantity == self.storage[id][1]:
+            del self.storage[id]
+        else:
+            self.storage[id][1] -= quantity
 
 def initMap(height, width):
     map = [[0 for x in range(width)] for y in range(height)]
