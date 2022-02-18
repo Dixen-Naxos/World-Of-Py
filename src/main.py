@@ -61,6 +61,30 @@ class Player:
         if result == 0 and len(self.inventory) < 11:
             self.inventory.append(copy.deepcopy(itemDict[resourceId]))
 
+    def repareItems(self):
+        for elt in self.inventory:
+            if elt.type == "Outil":
+                elt.durability = 10
+
+    def checkQuantity(self, id, quantity):
+        for elt in self.inventory:
+            if elt.id == id:
+                if elt.quantity >= quantity:
+                    return 1
+        return 0
+
+    def removeItem(self, id, quantity):
+        for i in range(0, len(self.inventory)):
+            if self.inventory[i].id == id:
+                self.inventory[i].quantity -= quantity
+                if self.inventory[i].quantity == 0:
+                    del self.inventory[i]
+                return
+
+    def printInvetory(self):
+        for i in range(0, len(self.inventory)):
+            print(str(self.inventory[i].id) + " : " + str(self.inventory[i].name) + " : " + str(self.inventory[i].quantity))
+
 
 class Craft:
     def __init__(self, itemId, idResource1, nbResource1, idResource2, nbResource2, zone):
@@ -84,7 +108,7 @@ class Game:
         self.screen = None
 
     def saveGame(self):
-        pathToSave = os.path.abspath("resources/save.json")
+        pathToSave = os.path.abspath("../resources/save.json")
         f = open(pathToSave, "w")
         jsonDict = {'maps': self.maps,
                     'storage': self.storage,
@@ -102,7 +126,7 @@ class Game:
         f.close()
 
     def loadGame(self):
-        pathToSave = os.path.abspath("resources/save.json")
+        pathToSave = os.path.abspath("../resources/save.json")
         f = open(pathToSave, "r")
         data = json.load(f)
         self.maps = data['maps']
@@ -119,13 +143,13 @@ class Game:
     @staticmethod
     def initItemsDict():
         itemsDict = {}
-        names = ["Epee en bois",  "Serpe en bois", "Pioche en bois", "Hache en bois", "Herbe", "Pierre",
+        names = ["Epee en bois", "Serpe en bois", "Pioche en bois", "Hache en bois", "Herbe", "Pierre",
                  "Sapin", "Epee en pierre", "Lance en pierre", "Marteau en pierre", "Plastron en pierre",
                  "Serpe en pierre", "Pioche en pierre", "Hache en pierre", "Potion de vie I", "Lavande", "Fer",
                  "Hetre", "Epee en fer", "Lance en fer", "Marteau en fer", "Plastron en fer",
                  "Serpe en fer", "Pioche en fer", "Hache en fer", "Potion de vie II", "Chanvre", "Diamant",
                  "Chene", "Epee en diamant", "Lance en diamant", "Marteau en diamant",
-                 "Plastron en diamant","Potion de vie III"]
+                 "Plastron en diamant", "Potion de vie III"]
 
         types = ["Arme", "Outil", "Outil", "Outil", "Ressource de craft", "Ressource de craft",
                  "Ressource de craft", "Arme", "Arme", "Arme", "Armure",
@@ -192,7 +216,7 @@ class Game:
         zone = [6, 6, 5, 3, 6, 5, 3, 6, 5, 3, 6, 5, 3, 6, 6, 5, 6, 6, 5, 6, 6, 5, 6, 5, 3]
 
         for i in range(len(itemId)):
-            craftsDict[i] = Craft(itemId[i], idResource1[i], nbResource1[i], idResource2[i], nbResource2, zone[i])
+            craftsDict[i] = Craft(itemId[i], idResource1[i], nbResource1[i], idResource2[i], nbResource2[i], zone[i])
         return craftsDict
 
     def decrementTimers(self):
@@ -221,24 +245,24 @@ class Game:
             self.maps[self.player.mapId][self.player.posX][self.player.posY] = 0
             self.player.mapId = 3
             self.findPortal(idPortal)
-            pygame.mixer.music.load("resources/music/Zone_2.mp3")
+            pygame.mixer.music.load("../resources/music/Zone_2.mp3")
             # display text with pos
         elif self.player.mapId == 6:
             self.maps[self.player.mapId][self.player.posX][self.player.posY] = 0
             self.player.mapId = 3
             self.findPortal(idPortal)
-            pygame.mixer.music.load("resources/music/Zone_2.mp3")
+            pygame.mixer.music.load("../resources/music/Zone_2.mp3")
         elif self.player.mapId == 3:
             if idPortal == -2:
                 self.maps[self.player.mapId][self.player.posX][self.player.posY] = 0
                 self.player.mapId = 0
                 self.findPortal(idPortal)
-                pygame.mixer.music.load("resources/music/Zone_1.mp3")
+                pygame.mixer.music.load("../resources/music/Zone_1.mp3")
             elif idPortal == -3 and self.player.level >= 7:
                 self.maps[self.player.mapId][self.player.posX][self.player.posY] = 0
                 self.player.mapId = 6
                 self.findPortal(idPortal)
-                pygame.mixer.music.load("resources/music/Zone_3.mp3")
+                pygame.mixer.music.load("../resources/music/Zone_3.mp3")
         else:
             return 0
         pygame.mixer.music.play(-1)
@@ -255,11 +279,13 @@ class Game:
     def collectResources(self, posX, posY):
         value = self.maps[self.player.mapId][posX][posY]
         if value < 6:
-            if self.player.checkInInventoryAndUseTool(value - 1) != -1 or self.player.checkInInventoryAndUseTool(value + 9) != -1 or self.player.checkInInventoryAndUseTool(value + 20) != -1:
+            if self.player.checkInInventoryAndUseTool(value - 1) != -1 or self.player.checkInInventoryAndUseTool(
+                    value + 9) != -1 or self.player.checkInInventoryAndUseTool(value + 20) != -1:
                 self.player.appendCraftResource(self.itemsDict, value + 2)
                 self.movePlayerAddTimer(posX, posY, 10)
         elif value < 9:
-            if self.player.checkInInventoryAndUseTool(value + 6) != -1 or self.player.checkInInventoryAndUseTool(value + 17) != -1:
+            if self.player.checkInInventoryAndUseTool(value + 6) != -1 or self.player.checkInInventoryAndUseTool(
+                    value + 17) != -1:
                 self.player.appendCraftResource(self.itemsDict, value + 10)
                 self.movePlayerAddTimer(posX, posY, 10)
         else:
@@ -272,7 +298,7 @@ class Game:
             self.collectResources(posX, posY)
             self.decrementTimers()
         elif self.maps[self.player.mapId][posX][posY] == 2:
-            print("PNJ")
+            self.pnjMenu()
         elif self.maps[self.player.mapId][posX][posY] == -1:
             print("Mur")
         elif 22 > self.maps[self.player.mapId][posX][posY] > 11:
@@ -309,7 +335,7 @@ class Game:
         self.decrementTimers()
 
     def fillRender(self, screen):
-        image = pygame.image.load("resources/textures/0.png")
+        image = pygame.image.load("../resources/textures/0.png")
         for x in range(len(self.maps[self.player.mapId])):
             for y in range(len(self.maps[self.player.mapId][0])):
                 screen.blit(image, [x * 32, y * 32])
@@ -317,18 +343,18 @@ class Game:
     def renderMap(self, screen):
         for x in range(len(self.maps[self.player.mapId])):
             for y in range(len(self.maps[self.player.mapId][0])):
-                image = pygame.image.load("resources/textures/" + str(self.maps[self.player.mapId][x][y]) + ".png")
+                image = pygame.image.load("../resources/textures/" + str(self.maps[self.player.mapId][x][y]) + ".png")
                 screen.blit(image, [y * 32, x * 32])
 
     def gamePlay(self):
         size = width, height = len(game.maps[game.player.mapId]) * 32, len(game.maps[game.player.mapId][0]) * 32
         screen = pygame.display.set_mode(size)
         if self.player.mapId == 0:
-            pygame.mixer.music.load("resources/music/Zone_1.mp3")
+            pygame.mixer.music.load("../resources/music/Zone_1.mp3")
         elif self.player.mapId == 3:
-            pygame.mixer.music.load("resources/music/Zone_2.mp3")
+            pygame.mixer.music.load("../resources/music/Zone_2.mp3")
         else:
-            pygame.mixer.music.load("resources/music/Zone_3.mp3")
+            pygame.mixer.music.load("../resources/music/Zone_3.mp3")
         pygame.mixer.music.play(-1)
         game.fillRender(screen)
         game.renderMap(screen)
@@ -358,7 +384,7 @@ class Game:
     def turnMenu(self):
         self.size = width, height = 1280, 720
         self.screen = pygame.display.set_mode(self.size)
-        image = pygame.image.load("resources/textures/fonds/TurnMenu.png")
+        image = pygame.image.load("../resources/textures/fonds/TurnMenu.png")
         self.screen.blit(image, [0, 0])
         pygame.display.flip()
         menuOn = 1
@@ -386,9 +412,9 @@ class Game:
     def mainMenu(self):
         self.size = width, height = 1280, 720
         self.screen = pygame.display.set_mode(self.size)
-        pygame.mixer.music.load("resources/music/MainMenu.mp3")
+        pygame.mixer.music.load("../resources/music/MainMenu.mp3")
         pygame.mixer.music.play(-1)
-        image = pygame.image.load("resources/textures/fonds/MainMenu.png")
+        image = pygame.image.load("../resources/textures/fonds/MainMenu.png")
         self.screen.blit(image, [0, 0])
         pygame.display.flip()
         while 1:
@@ -403,15 +429,172 @@ class Game:
                             case pygame.K_1:
                                 self.player.newGameInventory(self.itemsDict)
                                 self.turnMenu()
-                                pygame.mixer.music.load("resources/music/MainMenu.mp3")
+                                pygame.mixer.music.load("../resources/music/MainMenu.mp3")
                                 pygame.mixer.music.play(-1)
                             case pygame.K_2:
                                 self.loadGame()
                                 self.turnMenu()
-                                pygame.mixer.music.load("resources/music/MainMenu.mp3")
+                                pygame.mixer.music.load("../resources/music/MainMenu.mp3")
                                 pygame.mixer.music.play(-1)
                             case pygame.K_0:
                                 sys.exit()
+                        self.screen.blit(image, [0, 0])
+                        pygame.display.flip()
+
+    def pnjMenu(self):
+        self.size = width, height = 1280, 720
+        self.screen = pygame.display.set_mode(self.size)
+        pygame.mixer.music.load("../resources/music/MainMenu.mp3")
+        pygame.mixer.music.play(-1)
+        image = pygame.image.load("../resources/textures/fonds/PNJMenu.png")
+        self.screen.blit(image, [0, 0])
+        pygame.display.flip()
+        while 1:
+            for event in pygame.event.get():
+                match event.type:
+                    case pygame.QUIT:
+                        sys.exit()
+                    case pygame.KEYUP:
+                        match event.key:
+                            case pygame.K_ESCAPE:
+                                sys.exit()
+                            case pygame.K_1:
+                                self.player.repareItems()
+                            case pygame.K_2:
+                                self.craftMenu()
+                                pygame.mixer.music.load("../resources/music/MainMenu.mp3")
+                                pygame.mixer.music.play(-1)
+                            case pygame.K_3:
+                                self.stockageMenu()
+                                pygame.mixer.music.load("../resources/music/MainMenu.mp3")
+                                pygame.mixer.music.play(-1)
+                            case pygame.K_0:
+                                return
+                        self.screen.blit(image, [0, 0])
+                        pygame.display.flip()
+
+    def craftMenu(self):
+        self.size = width, height = 1280, 720
+        self.screen = pygame.display.set_mode(self.size)
+        pygame.mixer.music.load("../resources/music/MainMenu.mp3")
+        pygame.mixer.music.play(-1)
+        image = pygame.image.load("../resources/textures/fonds/586.jpg")
+        self.screen.blit(image, [0, 0])
+        pygame.display.flip()
+        posC = 1
+        listCraftZone = []
+
+        for i in range(0, len(self.craftsDict)):
+            if self.craftsDict[i].zone == 6 \
+                    or (self.craftsDict[i].zone == 5 and self.player.mapId != 0) \
+                    or (self.craftsDict[i].zone == 3 and self.player.mapId == 6):
+                listCraftZone.append(i)
+
+        for i in range(0, len(listCraftZone)):
+            if self.craftsDict[listCraftZone[i]].idResource2 == 0:
+                imgText = police.render(
+                    self.itemsDict[self.craftsDict[listCraftZone[i]].itemId].name + " : " + str(
+                        self.craftsDict[listCraftZone[i]].nbResource1) + " " +
+                    self.itemsDict[self.craftsDict[listCraftZone[i]].idResource1].name, True, (0, 0, 0))
+            else:
+                imgText = police.render(
+                    self.itemsDict[self.craftsDict[listCraftZone[i]].itemId].name + " : " + str(
+                        self.craftsDict[listCraftZone[i]].nbResource1) + " " +
+                    self.itemsDict[self.craftsDict[listCraftZone[i]].idResource1].name + " + " + str(
+                        self.craftsDict[listCraftZone[i]].nbResource2) + " " +
+                    self.itemsDict[self.craftsDict[listCraftZone[i]].idResource2].name, True, (0, 0, 0))
+            self.screen.blit(imgText, [50, 50 * i + 50])
+
+        imgCurseur = police.render("->", True, (0, 0, 0))
+        self.screen.blit(imgCurseur, [25, 50 * posC])
+        pygame.display.flip()
+        print(self.player.printInvetory())
+        while 1:
+            for event in pygame.event.get():
+                match event.type:
+                    case pygame.QUIT:
+                        sys.exit()
+                    case pygame.KEYUP:
+                        match event.key:
+                            case pygame.K_ESCAPE:
+                                sys.exit()
+                            case pygame.K_z:
+                                if posC > 1:
+                                    posC -= 1
+                            case pygame.K_s:
+                                if posC < len(listCraftZone):
+                                    posC += 1
+                            case pygame.K_RETURN:
+                                if self.player.checkQuantity(self.craftsDict[listCraftZone[posC - 1]].idResource1,
+                                                             self.craftsDict[listCraftZone[posC - 1]].nbResource1):
+                                    if self.craftsDict[listCraftZone[posC - 1]].idResource2 != 0:
+                                        if self.player.checkQuantity(
+                                                self.craftsDict[listCraftZone[posC - 1]].idResource2,
+                                                self.craftsDict[listCraftZone[posC - 1]].nbResource2):
+                                            self.craft(listCraftZone[posC - 1])
+                                            return
+                                    else:
+                                        self.craft(listCraftZone[posC - 1])
+                                        return
+                            case pygame.K_0:
+                                return
+                        self.screen.blit(image, [0, 0])
+                        cnt = 0
+                        for i in range(0, len(listCraftZone)):
+                            if self.craftsDict[listCraftZone[i]].idResource2 == 0:
+                                imgText = police.render(
+                                    self.itemsDict[self.craftsDict[listCraftZone[i]].itemId].name + " : " + str(
+                                        self.craftsDict[listCraftZone[i]].nbResource1) + " " +
+                                    self.itemsDict[self.craftsDict[listCraftZone[i]].idResource1].name, True, (0, 0, 0))
+                            else:
+                                imgText = police.render(
+                                    self.itemsDict[self.craftsDict[listCraftZone[i]].itemId].name + " : " + str(
+                                        self.craftsDict[listCraftZone[i]].nbResource1) + " " +
+                                    self.itemsDict[self.craftsDict[listCraftZone[i]].idResource1].name + " + " + str(
+                                        self.craftsDict[listCraftZone[i]].nbResource2) + " " +
+                                    self.itemsDict[self.craftsDict[listCraftZone[i]].idResource2].name, True, (0, 0, 0))
+                            self.screen.blit(imgText, [50, 50 * i + 50])
+                        imgCurseur = police.render("->", True, (0, 0, 0))
+                        self.screen.blit(imgCurseur, [25, 50 * posC])
+                        pygame.display.flip()
+
+    def craft(self, id):
+        self.player.removeItem(self.craftsDict[id].idResource1,
+                               self.craftsDict[id].nbResource1)
+        if self.craftsDict[id].idResource2 != 0:
+            self.player.removeItem(self.craftsDict[id].idResource2,
+                                   self.craftsDict[id].nbResource2)
+        self.player.inventory.append(copy.deepcopy(self.itemsDict[self.craftsDict[id].itemId]))
+
+    def stockageMenu(self):
+        self.size = width, height = 1280, 720
+        self.screen = pygame.display.set_mode(self.size)
+        pygame.mixer.music.load("../resources/music/MainMenu.mp3")
+        pygame.mixer.music.play(-1)
+        image = pygame.image.load("../resources/textures/fonds/PNJMenu.png")
+        self.screen.blit(image, [0, 0])
+        pygame.display.flip()
+        while 1:
+            for event in pygame.event.get():
+                match event.type:
+                    case pygame.QUIT:
+                        sys.exit()
+                    case pygame.KEYUP:
+                        match event.key:
+                            case pygame.K_ESCAPE:
+                                sys.exit()
+                            case pygame.K_1:
+                                self.player.repareItems()
+                            case pygame.K_2:
+                                self.craftMenu()
+                                pygame.mixer.music.load("../resources/music/MainMenu.mp3")
+                                pygame.mixer.music.play(-1)
+                            case pygame.K_3:
+                                self.stockageMenu()
+                                pygame.mixer.music.load("../resources/music/MainMenu.mp3")
+                                pygame.mixer.music.play(-1)
+                            case pygame.K_0:
+                                return
                         self.screen.blit(image, [0, 0])
                         pygame.display.flip()
 
@@ -491,6 +674,7 @@ pygame.init()
 pygame.mixer.init()
 pygame.mixer.music.set_volume(0.1)
 player = Player(0, 1, 100, 4, 4, 0)
+police = pygame.font.SysFont("../font/OpenSans-Regular.ttf", 30)
 
 game = Game(fillAllMaps(initAllMaps(10, 10)), player, [])
 
