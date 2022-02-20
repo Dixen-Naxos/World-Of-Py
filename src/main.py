@@ -92,10 +92,10 @@ class Player:
                 armor = self.inventory[i].protection
         return armor
 
-    def repareItems(self):
+    def repareItems(self, itemsDict):
         for elt in self.inventory:
             if elt.type == "Outil":
-                elt.durability = 10
+                elt.durability = itemsDict[elt.id].durability
 
     def checkQuantity(self, id, quantity):
         for elt in self.inventory:
@@ -651,7 +651,7 @@ class Game:
                             case pygame.K_ESCAPE:
                                 sys.exit()
                             case pygame.K_1:
-                                self.player.repareItems()
+                                self.player.repareItems(self.itemsDict)
                             case pygame.K_2:
                                 self.craftMenu()
                                 pygame.mixer.music.load(pathToResources + "/music/MainMenu.mp3")
