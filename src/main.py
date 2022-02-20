@@ -17,6 +17,9 @@ class Item:
         self.quantity = quantity
         self.protection = protection
 
+    def __str__(self):
+        return self.name + " " + str(self.quantity)
+
 
 class Monster:
     def __init__(self, id, name, hp, att, res, xp, imagePath):
@@ -56,6 +59,8 @@ class Player:
         self.inventory.append(copy.deepcopy(itemDict[2]))
         self.inventory.append(copy.deepcopy(itemDict[3]))
         self.inventory.append(copy.deepcopy(itemDict[4]))
+        self.inventory.append(copy.deepcopy(itemDict[15]))
+        self.inventory[4].quantity = 10
 
     def checkInInventoryAndUseTool(self, itemId):
         for i in range(len(self.inventory)):
@@ -366,6 +371,52 @@ class Game:
         if self.player.currentHp <= 0:
             return -1
 
+    def usePotion(self, pos):
+        if self.player.inventory[pos].name == "Potion de vie I":
+            self.player.currentHp += 30
+        elif self.player.inventory[pos].name == "Potion de vie II":
+            self.player.currentHp += 80
+        elif self.player.inventory[pos].name == "Potion de vie III":
+            self.player.currentHp += 200
+        if self.player.currentHp > self.player.level * 50:
+            self.player.currentHp = self.player.level * 50
+        self.player.inventory[pos].quantity -= 1
+        if self.player.inventory[pos].quantity == 0:
+            self.player.inventory.pop(pos)
+
+    def potionMenu(self):
+        res = []
+        for i in range(len(self.player.inventory)):
+            if self.player.inventory[i].type == "Soin":
+                res.append(i)
+        if res is not None:
+            image = pygame.image.load("resources/textures/fonds/battle.jpg")
+            self.screen.blit(image, [0, 0])
+            for i in range(len(res)):
+                self.font.render_to(self.screen, (100, 200 + 100 * i), str(i + 1) + str(self.player.inventory[res[i]]), (0, 0, 0))
+            self.font.render_to(self.screen, (100, 600), "0 - Retour", (0, 0, 0))
+            pygame.display.flip()
+            while 1:
+                for event in pygame.event.get():
+                    match event.type:
+                        case pygame.QUIT:
+                            sys.exit()
+                        case pygame.KEYUP:
+                            match event.key:
+                                case pygame.K_1:
+                                    self.usePotion(res[0])
+                                    return 1
+                                case pygame.K_2:
+                                    if len(res) > 1:
+                                        self.usePotion(res[1])
+                                        return 1
+                                case pygame.K_3:
+                                    if len(res) > 2:
+                                        self.usePotion(res[2])
+                                        return 1
+                                case pygame.K_0:
+                                    return 0
+
     def battleMenu(self, weapon, monster):
         if monster.id == 99:
             pygame.mixer.music.load("resources/music/Boss.mp3")
@@ -389,7 +440,8 @@ class Game:
                                 if self.attack(weapon, monster) == 1:
                                     return 1
                             case pygame.K_2:
-                                print("potions")
+                                if self.potionMenu() == 0:
+                                    continue
                             case pygame.K_3:
                                 if random.randint(1, 3) == 1:
                                     return 2
