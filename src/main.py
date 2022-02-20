@@ -146,7 +146,7 @@ class Game:
         self.font = None
 
     def saveGame(self):
-        pathToSave = os.path.abspath("../resources/save.json")
+        pathToSave = os.path.abspath(pathToResources + "/save.json")
         f = open(pathToSave, "w")
         jsonDict = {'maps': self.maps,
                     'storage': self.storage,
@@ -164,7 +164,7 @@ class Game:
         f.close()
 
     def loadGame(self):
-        pathToSave = os.path.abspath("resources/save.json")
+        pathToSave = os.path.abspath(pathToResources + "/save.json")
         with open(pathToSave, "r") as f:
             try:
                 data = json.load(f)
@@ -225,14 +225,14 @@ class Game:
         defense = [1, 0, 3, 6, 40, 15, 1, 2, 40, 20]
 
         xp = [5, 4, 8, 9, 60, 15, 20, 22, 60, 60]
-        imagePath = ["resources/textures/monstres/sanglier.png",
-                     "resources/textures/monstres/slime.png", "resources/textures/monstres/macron.png",
-                     "resources/textures/monstres/petit_ours_brun.png",
-                     "resources/textures/monstres/flan.png", "resources/textures/monstres/caribou.png",
-                     "resources/textures/monstres/glados.png",
-                     "resources/textures/monstres/sananes.png",
-                     "resources/textures/monstres/dragon.png",
-                     "resources/textures/monstres/armand_jesus.png"]
+        imagePath = [pathToResources + "/textures/monstres/sanglier.png",
+                     pathToResources + "/textures/monstres/slime.png", pathToResources + "/textures/monstres/macron.png",
+                     pathToResources + "/textures/monstres/petit_ours_brun.png",
+                     pathToResources + "/textures/monstres/flan.png", pathToResources + "/textures/monstres/caribou.png",
+                     pathToResources + "/textures/monstres/glados.png",
+                     pathToResources + "/textures/monstres/sananes.png",
+                     pathToResources + "/textures/monstres/dragon.png",
+                     pathToResources + "/textures/monstres/armand_jesus.png"]
 
         for i in range(len(names) - 1):
             monstersDict[i + 12] = Monster(i+12, names[i], hp[i], att[i], defense[i], xp[i], imagePath[i])
@@ -287,23 +287,23 @@ class Game:
             self.maps[self.player.mapId][self.player.posX][self.player.posY] = 0
             self.player.mapId = 3
             self.findPortal(idPortal)
-            pygame.mixer.music.load("../resources/music/Zone_2.mp3")
+            pygame.mixer.music.load(pathToResources + "/music/Zone_2.mp3")
         elif self.player.mapId == 6:
             self.maps[self.player.mapId][self.player.posX][self.player.posY] = 0
             self.player.mapId = 3
             self.findPortal(idPortal)
-            pygame.mixer.music.load("../resources/music/Zone_2.mp3")
+            pygame.mixer.music.load(pathToResources + "/music/Zone_2.mp3")
         elif self.player.mapId == 3:
             if idPortal == -2:
                 self.maps[self.player.mapId][self.player.posX][self.player.posY] = 0
                 self.player.mapId = 0
                 self.findPortal(idPortal)
-                pygame.mixer.music.load("../resources/music/Zone_1.mp3")
+                pygame.mixer.music.load(pathToResources + "/music/Zone_1.mp3")
             elif idPortal == -3 and self.player.level >= 7:
                 self.maps[self.player.mapId][self.player.posX][self.player.posY] = 0
                 self.player.mapId = 6
                 self.findPortal(idPortal)
-                pygame.mixer.music.load("../resources/music/Zone_3.mp3")
+                pygame.mixer.music.load(pathToResources + "/music/Zone_3.mp3")
         else:
             return 0
         self.zoneSetup()
@@ -376,7 +376,7 @@ class Game:
         self.decrementTimers()
 
     def fillRender(self, screen):
-        image = pygame.image.load("../resources/textures/0.png")
+        image = pygame.image.load(pathToResources + "/textures/0.png")
         for x in range(len(self.maps[self.player.mapId])):
             for y in range(len(self.maps[self.player.mapId][0])):
                 screen.blit(image, [x * 32, y * 32])
@@ -384,7 +384,7 @@ class Game:
     def renderMap(self, screen):
         for x in range(len(self.maps[self.player.mapId])):
             for y in range(len(self.maps[self.player.mapId][0])):
-                image = pygame.image.load("../resources/textures/" + str(self.maps[self.player.mapId][x][y]) + ".png")
+                image = pygame.image.load(pathToResources + "/textures/" + str(self.maps[self.player.mapId][x][y]) + ".png")
                 screen.blit(image, [y * 32, x * 32])
 
     def attack(self, weapon, monster):
@@ -423,7 +423,7 @@ class Game:
             if self.player.inventory[i].type == "Soin":
                 res.append(i)
         if res is not None:
-            image = pygame.image.load("resources/textures/fonds/battle.jpg")
+            image = pygame.image.load(pathToResources + "/textures/fonds/battle.jpg")
             self.screen.blit(image, [0, 0])
             for i in range(len(res)):
                 self.font.render_to(self.screen, (100, 200 + 100 * i), str(i + 1) + str(self.player.inventory[res[i]]), (0, 0, 0))
@@ -452,12 +452,12 @@ class Game:
 
     def battleMenu(self, weapon, monster):
         if monster.id == 99:
-            pygame.mixer.music.load("resources/music/Boss.mp3")
+            pygame.mixer.music.load(pathToResources + "/music/Boss.mp3")
         else:
-            pygame.mixer.music.load("resources/music/Battle.mp3")
+            pygame.mixer.music.load(pathToResources + "/music/Battle.mp3")
         armor = self.player.getArmor()
         pygame.mixer.music.play(-1)
-        image = pygame.image.load("resources/textures/fonds/battleMenu.png")
+        image = pygame.image.load(pathToResources + "/textures/fonds/battleMenu.png")
         monsterImg = pygame.image.load(monster.imagePath)
         self.screen.blit(image, [0, 0])
         self.screen.blit(monsterImg, [500, 60])
@@ -489,7 +489,7 @@ class Game:
     def weaponChoice(self, validWeapons):
         self.size = width, height = 1280, 720
         self.screen = pygame.display.set_mode(self.size)
-        image = pygame.image.load("resources/textures/fonds/battle.jpg")
+        image = pygame.image.load(pathToResources + "/textures/fonds/battle.jpg")
         while 1:
             for event in pygame.event.get():
                 match event.type:
@@ -520,7 +520,7 @@ class Game:
         if res == 1:
             self.movePlayerAddTimer(posX, posY, 15)
         elif res == -1:
-            pathToSave = os.path.abspath("resources/save.json")
+            pathToSave = os.path.abspath(pathToResources + "/save.json")
             f = open(pathToSave, "w")
             f.close()
             main()
@@ -529,11 +529,11 @@ class Game:
         self.size = width, height = len(self.maps[self.player.mapId]) * 32, len(self.maps[self.player.mapId][0]) * 32
         self.screen = pygame.display.set_mode(self.size)
         if self.player.mapId == 0:
-            pygame.mixer.music.load("../resources/music/Zone_1.mp3")
+            pygame.mixer.music.load(pathToResources + "/music/Zone_1.mp3")
         elif self.player.mapId == 3:
-            pygame.mixer.music.load("../resources/music/Zone_2.mp3")
+            pygame.mixer.music.load(pathToResources + "/music/Zone_2.mp3")
         else:
-            pygame.mixer.music.load("../resources/music/Zone_3.mp3")
+            pygame.mixer.music.load(pathToResources + "/music/Zone_3.mp3")
         pygame.mixer.music.play(-1)
 
     def gamePlay(self):
@@ -561,11 +561,12 @@ class Game:
                                 self.checkCanMove(4)
                         self.fillRender(self.screen)
                         self.renderMap(self.screen)
+                        pygame.display.flip()
 
     def turnMenu(self):
         self.size = width, height = 1280, 720
         self.screen = pygame.display.set_mode(self.size)
-        image = pygame.image.load("../resources/textures/fonds/TurnMenu.png")
+        image = pygame.image.load(pathToResources + "/textures/fonds/TurnMenu.png")
         self.screen.blit(image, [0, 0])
         pygame.display.flip()
         menuOn = 1
@@ -593,9 +594,9 @@ class Game:
     def mainMenu(self):
         self.size = width, height = 1280, 720
         self.screen = pygame.display.set_mode(self.size)
-        pygame.mixer.music.load("../resources/music/MainMenu.mp3")
+        pygame.mixer.music.load(pathToResources + "/music/MainMenu.mp3")
         pygame.mixer.music.play(-1)
-        image = pygame.image.load("../resources/textures/fonds/MainMenu.png")
+        image = pygame.image.load(pathToResources + "/textures/fonds/MainMenu.png")
         self.screen.blit(image, [0, 0])
         pygame.display.flip()
         while 1:
@@ -610,12 +611,12 @@ class Game:
                             case pygame.K_1:
                                 self.player.newGameInventory(self.itemsDict)
                                 self.turnMenu()
-                                pygame.mixer.music.load("../resources/music/MainMenu.mp3")
+                                pygame.mixer.music.load(pathToResources + "/music/MainMenu.mp3")
                                 pygame.mixer.music.play(-1)
                             case pygame.K_2:
                                 if self.loadGame() == 1:
                                     self.turnMenu()
-                                    pygame.mixer.music.load("resources/music/MainMenu.mp3")
+                                    pygame.mixer.music.load(pathToResources + "/music/MainMenu.mp3")
                                     pygame.mixer.music.play(-1)
                             case pygame.K_0:
                                 sys.exit()
@@ -625,9 +626,9 @@ class Game:
     def pnjMenu(self):
         self.size = width, height = 1280, 720
         self.screen = pygame.display.set_mode(self.size)
-        pygame.mixer.music.load("../resources/music/MainMenu.mp3")
+        pygame.mixer.music.load(pathToResources + "/music/MainMenu.mp3")
         pygame.mixer.music.play(-1)
-        image = pygame.image.load("../resources/textures/fonds/PNJMenu.png")
+        image = pygame.image.load(pathToResources + "/fonds/PNJMenu.png")
         self.screen.blit(image, [0, 0])
         pygame.display.flip()
         while 1:
@@ -643,11 +644,11 @@ class Game:
                                 self.player.repareItems()
                             case pygame.K_2:
                                 self.craftMenu()
-                                pygame.mixer.music.load("../resources/music/MainMenu.mp3")
+                                pygame.mixer.music.load(pathToResources + "/music/MainMenu.mp3")
                                 pygame.mixer.music.play(-1)
                             case pygame.K_3:
                                 self.storageMenu()
-                                pygame.mixer.music.load("../resources/music/MainMenu.mp3")
+                                pygame.mixer.music.load(pathToResources + "/music/MainMenu.mp3")
                                 pygame.mixer.music.play(-1)
                             case pygame.K_0:
                                 return
@@ -657,9 +658,9 @@ class Game:
     def craftMenu(self):
         self.size = width, height = 1280, 720
         self.screen = pygame.display.set_mode(self.size)
-        pygame.mixer.music.load("../resources/music/MainMenu.mp3")
+        pygame.mixer.music.load(pathToResources + "/music/MainMenu.mp3")
         pygame.mixer.music.play(-1)
-        image = pygame.image.load("../resources/textures/fonds/586.jpg")
+        image = pygame.image.load(pathToResources + "/textures/fonds/586.jpg")
         self.screen.blit(image, [0, 0])
         pygame.display.flip()
         posC = 1
@@ -673,12 +674,12 @@ class Game:
 
         for i in range(0, len(listCraftZone)):
             if self.craftsDict[listCraftZone[i]].idResource2 == 0:
-                imgText = police.render(
+                imgText = self.font.render(
                     self.itemsDict[self.craftsDict[listCraftZone[i]].itemId].name + " : " + str(
                         self.craftsDict[listCraftZone[i]].nbResource1) + " " +
                     self.itemsDict[self.craftsDict[listCraftZone[i]].idResource1].name, True, (0, 0, 0))
             else:
-                imgText = police.render(
+                imgText = self.font.render(
                     self.itemsDict[self.craftsDict[listCraftZone[i]].itemId].name + " : " + str(
                         self.craftsDict[listCraftZone[i]].nbResource1) + " " +
                     self.itemsDict[self.craftsDict[listCraftZone[i]].idResource1].name + " + " + str(
@@ -686,7 +687,7 @@ class Game:
                     self.itemsDict[self.craftsDict[listCraftZone[i]].idResource2].name, True, (0, 0, 0))
             self.screen.blit(imgText, [50, 50 * i + 50])
 
-        imgCurseur = police.render("->", True, (0, 0, 0))
+        imgCurseur = self.font.render("->", True, (0, 0, 0))
         self.screen.blit(imgCurseur, [25, 50 * posC])
         pygame.display.flip()
         while 1:
@@ -722,19 +723,19 @@ class Game:
                         cnt = 0
                         for i in range(0, len(listCraftZone)):
                             if self.craftsDict[listCraftZone[i]].idResource2 == 0:
-                                imgText = police.render(
+                                imgText = self.font.render(
                                     self.itemsDict[self.craftsDict[listCraftZone[i]].itemId].name + " : " + str(
                                         self.craftsDict[listCraftZone[i]].nbResource1) + " " +
                                     self.itemsDict[self.craftsDict[listCraftZone[i]].idResource1].name, True, (0, 0, 0))
                             else:
-                                imgText = police.render(
+                                imgText = self.font.render(
                                     self.itemsDict[self.craftsDict[listCraftZone[i]].itemId].name + " : " + str(
                                         self.craftsDict[listCraftZone[i]].nbResource1) + " " +
                                     self.itemsDict[self.craftsDict[listCraftZone[i]].idResource1].name + " + " + str(
                                         self.craftsDict[listCraftZone[i]].nbResource2) + " " +
                                     self.itemsDict[self.craftsDict[listCraftZone[i]].idResource2].name, True, (0, 0, 0))
                             self.screen.blit(imgText, [50, 50 * i + 50])
-                        imgCurseur = police.render("->", True, (0, 0, 0))
+                        imgCurseur = self.font.render("->", True, (0, 0, 0))
                         self.screen.blit(imgCurseur, [25, 50 * posC])
                         pygame.display.flip()
 
@@ -749,14 +750,14 @@ class Game:
     def storageMenu(self):
         self.size = width, height = 1280, 720
         self.screen = pygame.display.set_mode(self.size)
-        pygame.mixer.music.load("../resources/music/MainMenu.mp3")
+        pygame.mixer.music.load(pathToResources + "/music/MainMenu.mp3")
         pygame.mixer.music.play(-1)
-        image = pygame.image.load("../resources/textures/fonds/586.jpg")
+        image = pygame.image.load(pathToResources + "/textures/fonds/586.jpg")
         self.screen.blit(image, [0, 0])
         pygame.display.flip()
-        imgText = police.render("1 - Stocker", True, (0, 0, 0))
+        imgText = self.font.render("1 - Stocker", True, (0, 0, 0))
         self.screen.blit(imgText, [100, 300])
-        imgText = police.render("2 - Retirer", True, (0, 0, 0))
+        imgText = self.font.render("2 - Retirer", True, (0, 0, 0))
         self.screen.blit(imgText, [100, 500])
         pygame.display.flip()
         while 1:
@@ -775,9 +776,9 @@ class Game:
                             case pygame.K_0:
                                 return
                         self.screen.blit(image, [0, 0])
-                        imgText = police.render("1 - Stocker", True, (0, 0, 0))
+                        imgText = self.font.render("1 - Stocker", True, (0, 0, 0))
                         self.screen.blit(imgText, [100, 300])
-                        imgText = police.render("2 - Retirer", True, (0, 0, 0))
+                        imgText = self.font.render("2 - Retirer", True, (0, 0, 0))
                         self.screen.blit(imgText, [100, 500])
                         pygame.display.flip()
 
@@ -786,16 +787,16 @@ class Game:
             return
         self.size = width, height = 1280, 720
         self.screen = pygame.display.set_mode(self.size)
-        pygame.mixer.music.load("../resources/music/MainMenu.mp3")
+        pygame.mixer.music.load(pathToResources + "/music/MainMenu.mp3")
         pygame.mixer.music.play(-1)
-        image = pygame.image.load("../resources/textures/fonds/586.jpg")
+        image = pygame.image.load(pathToResources + "/textures/fonds/586.jpg")
         self.screen.blit(image, [0, 0])
         pygame.display.flip()
         posC = 0
         for i in range(0, len(self.player.inventory)):
-            imgText = police.render(str(self.player.inventory[i].quantity) + ' : ' + self.player.inventory[i].name, True, (0, 0, 0))
+            imgText = self.font.render(str(self.player.inventory[i].quantity) + ' : ' + self.player.inventory[i].name, True, (0, 0, 0))
             self.screen.blit(imgText, [200 * (i // 14) + 50, 50 * (i % 14) + 50])
-        imgCurseur = police.render("->", True, (0, 0, 0))
+        imgCurseur = self.font.render("->", True, (0, 0, 0))
         self.screen.blit(imgCurseur, [200 * (posC // 14) + 25, 50 * (posC % 14) + 50])
         pygame.display.flip()
         while 1:
@@ -822,25 +823,25 @@ class Game:
                                 return
                         self.screen.blit(image, [0, 0])
                         for i in range(0, len(self.player.inventory)):
-                            imgText = police.render(str(self.player.inventory[i].quantity) + ' : ' + self.player.inventory[i].name, True, (0, 0, 0))
+                            imgText = self.font.render(str(self.player.inventory[i].quantity) + ' : ' + self.player.inventory[i].name, True, (0, 0, 0))
                             self.screen.blit(imgText, [200 * (i // 14) + 50, 50 * (i % 14) + 50])
-                        imgCurseur = police.render("->", True, (0, 0, 0))
+                        imgCurseur = self.font.render("->", True, (0, 0, 0))
                         self.screen.blit(imgCurseur, [200 * (posC // 14) + 25, 50 * (posC % 14) + 50])
                         pygame.display.flip()
 
     def removeStorageMenu(self):
         self.size = width, height = 1280, 720
         self.screen = pygame.display.set_mode(self.size)
-        pygame.mixer.music.load("../resources/music/MainMenu.mp3")
+        pygame.mixer.music.load(pathToResources + "/music/MainMenu.mp3")
         pygame.mixer.music.play(-1)
-        image = pygame.image.load("../resources/textures/fonds/586.jpg")
+        image = pygame.image.load(pathToResources + "/textures/fonds/586.jpg")
         self.screen.blit(image, [0, 0])
         pygame.display.flip()
         posC = 0
         for i in range(0, len(self.storage)):
-            imgText = police.render(str(self.storage[i][1]) + " : " + self.itemsDict[self.storage[i][0]].name, True, (0, 0, 0))
+            imgText = self.font.render(str(self.storage[i][1]) + " : " + self.itemsDict[self.storage[i][0]].name, True, (0, 0, 0))
             self.screen.blit(imgText, [200 * (i // 14) + 50, 50 * (i % 14) + 50])
-        imgCurseur = police.render("->", True, (0, 0, 0))
+        imgCurseur = self.font.render("->", True, (0, 0, 0))
         self.screen.blit(imgCurseur, [200 * (posC // 14) + 25, 50 * (posC % 14) + 50])
         pygame.display.flip()
         while 1:
@@ -867,22 +868,22 @@ class Game:
                                 return
                         self.screen.blit(image, [0, 0])
                         for i in range(0, len(self.storage)):
-                            imgText = police.render(str(self.storage[i][1]) + " : " + self.itemsDict[self.storage[i][0]].name, True, (0, 0, 0))
+                            imgText = self.font.render(str(self.storage[i][1]) + " : " + self.itemsDict[self.storage[i][0]].name, True, (0, 0, 0))
                             self.screen.blit(imgText, [200 * (i // 14) + 50, 50 * (i % 14) + 50])
-                        imgCurseur = police.render("->", True, (0, 0, 0))
+                        imgCurseur = self.font.render("->", True, (0, 0, 0))
                         self.screen.blit(imgCurseur, [200 * (posC // 14) + 25, 50 * (posC % 14) + 50])
                         pygame.display.flip()
 
     def quantityMenu(self, max):
         self.size = width, height = 1280, 720
         self.screen = pygame.display.set_mode(self.size)
-        pygame.mixer.music.load("../resources/music/MainMenu.mp3")
+        pygame.mixer.music.load(pathToResources + "/music/MainMenu.mp3")
         pygame.mixer.music.play(-1)
-        image = pygame.image.load("../resources/textures/fonds/586.jpg")
+        image = pygame.image.load(pathToResources + "/textures/fonds/586.jpg")
         self.screen.blit(image, [0, 0])
         pygame.display.flip()
         quantity = 0
-        imgQuantity = police.render("< " + str(quantity) + " >", True, (0, 0, 0))
+        imgQuantity = self.font.render("< " + str(quantity) + " >", True, (0, 0, 0))
         self.screen.blit(imgQuantity, [600, 350])
         pygame.display.flip()
         while 1:
@@ -905,12 +906,12 @@ class Game:
                             case pygame.K_0:
                                 return 0
                         self.screen.blit(image, [0, 0])
-                        imgQuantity = police.render("< " + str(quantity) + " >", True, (0, 0, 0))
+                        imgQuantity = self.font.render("< " + str(quantity) + " >", True, (0, 0, 0))
                         self.screen.blit(imgQuantity, [600, 350])
                         pygame.display.flip()
 
     def store(self, id, quantity):
-        player.removeItem(id, quantity)
+        self.player.removeItem(id, quantity)
         for i in range(0, len(self.storage)):
             if self.storage[i][0] == id:
                 self.storage[i][1] += quantity
@@ -999,8 +1000,8 @@ def main():
     pygame.mixer.music.set_volume(0.1)
     player = Player(0, 1, 50, 4, 4, 0)
     game = Game(fillAllMaps(initAllMaps(10, 10)), player, [])
-    game.font = pygame.freetype.Font("resources/font/OpenSans-Regular.ttf", 24)
+    game.font = pygame.freetype.Font(pathToResources + "/font/OpenSans-Regular.ttf", 24)
     game.mainMenu()
 
-
+pathToResources = os.path.abspath("resources")
 main()
