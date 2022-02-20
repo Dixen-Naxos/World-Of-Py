@@ -117,9 +117,18 @@ class Player:
             for i in range(0, quantity):
                 self.appendCraftResource(itemDict, itemId)
         elif len(self.inventory) < 11:
-            while len(self.inventory) < 11 and quantity > 0:
-                self.inventory.append(copy.deepcopy(itemDict[itemId]))
-                quantity -= 1
+            if itemDict[itemId].type == "Soin":
+                done = 0
+                for elt in self.inventory:
+                    if elt.name == itemDict[itemId].name:
+                        elt.quantity += quantity
+                if done == 0 and len(self.inventory) < 11:
+                    self.inventory.append(copy.deepcopy(itemDict[itemId]))
+                    self.inventory[-1].quantity = quantity
+            else:
+                while len(self.inventory) < 11 and quantity > 0:
+                    self.inventory.append(copy.deepcopy(itemDict[itemId]))
+                    quantity -= 1
 
 
 class Craft:
@@ -346,6 +355,7 @@ class Game:
             self.decrementTimers()
         elif self.maps[self.player.mapId][posX][posY] == 2:
             self.pnjMenu()
+            self.zoneSetup()
         elif self.maps[self.player.mapId][posX][posY] == -1:
             print("Mur")
         elif 22 > self.maps[self.player.mapId][posX][posY] > 11 or self.maps[self.player.mapId][posX][posY] == 99:
