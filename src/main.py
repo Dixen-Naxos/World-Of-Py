@@ -19,7 +19,8 @@ class Item:
 
 
 class Monster:
-    def __init__(self, name, hp, att, res, xp, imagePath):
+    def __init__(self, id, name, hp, att, res, xp, imagePath):
+        self.id = id
         self.name = name
         self.hp = hp
         self.att = att
@@ -199,8 +200,8 @@ class Game:
                      "resources/textures/monstres/armand_jesus.png"]
 
         for i in range(len(names) - 1):
-            monstersDict[i + 12] = Monster(names[i], hp[i], att[i], defense[i], xp[i], imagePath[i])
-        monstersDict[99] = Monster(names[-1], hp[-1], att[-1], defense[-1], xp[-1], imagePath[-1])
+            monstersDict[i + 12] = Monster(i+12, names[i], hp[i], att[i], defense[i], xp[i], imagePath[i])
+        monstersDict[99] = Monster(99, names[-1], hp[-1], att[-1], defense[-1], xp[-1], imagePath[-1])
         return monstersDict
 
     @staticmethod
@@ -301,7 +302,7 @@ class Game:
             print("PNJ")
         elif self.maps[self.player.mapId][posX][posY] == -1:
             print("Mur")
-        elif 22 > self.maps[self.player.mapId][posX][posY] > 11:
+        elif 22 > self.maps[self.player.mapId][posX][posY] > 11 or self.maps[self.player.mapId][posX][posY] == 99:
             if self.battle(posX, posY) == -1:
                 print("Pas d'arme")
             self.zoneSetup()
@@ -366,8 +367,11 @@ class Game:
             return -1
 
     def battleMenu(self, weapon, monster):
+        if monster.id == 99:
+            pygame.mixer.music.load("resources/music/Boss.mp3")
+        else:
+            pygame.mixer.music.load("resources/music/Battle.mp3")
         armor = self.player.getArmor()
-        pygame.mixer.music.load("resources/music/Battle.mp3")
         pygame.mixer.music.play(-1)
         image = pygame.image.load("resources/textures/fonds/battleMenu.png")
         monsterImg = pygame.image.load(monster.imagePath)
@@ -610,8 +614,7 @@ def main():
     pygame.init()
     pygame.mixer.init()
     pygame.mixer.music.set_volume(0.1)
-    player = Player(49, 1, 50, 4, 4, 0)
-    player.currentHp = 1
+    player = Player(0, 1, 50, 4, 4, 0)
     game = Game(fillAllMaps(initAllMaps(10, 10)), player, [])
     game.font = pygame.freetype.Font("resources/font/OpenSans-Regular.ttf", 24)
     game.mainMenu()
