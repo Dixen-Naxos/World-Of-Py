@@ -78,7 +78,6 @@ class Player:
         if result == 0 and len(self.inventory) < 11:
             self.inventory.append(copy.deepcopy(itemDict[resourceId]))
 
-
     def getValidWeapons(self):
         tab = []
         for i in range(len(self.inventory)):
@@ -131,6 +130,13 @@ class Craft:
         self.idResource2 = idResource2
         self.nbResource2 = nbResource2
         self.zone = zone
+
+    def __str__(self):
+        if self.idResource2 == 0:
+            return str(self.itemId.name + " : " + str(self.nbResource1) + " " + self.idResource1.name)
+        else:
+            return str(self.itemId.name + " : " + str(self.nbResource1) + " " + self.idResource1.name + str(
+                self.nbResource2) + " " + self.idResource2.name)
 
 
 class Game:
@@ -226,16 +232,18 @@ class Game:
 
         xp = [5, 4, 8, 9, 60, 15, 20, 22, 60, 60]
         imagePath = [pathToResources + "/textures/monstres/sanglier.png",
-                     pathToResources + "/textures/monstres/slime.png", pathToResources + "/textures/monstres/macron.png",
+                     pathToResources + "/textures/monstres/slime.png",
+                     pathToResources + "/textures/monstres/macron.png",
                      pathToResources + "/textures/monstres/petit_ours_brun.png",
-                     pathToResources + "/textures/monstres/flan.png", pathToResources + "/textures/monstres/caribou.png",
+                     pathToResources + "/textures/monstres/flan.png",
+                     pathToResources + "/textures/monstres/caribou.png",
                      pathToResources + "/textures/monstres/glados.png",
                      pathToResources + "/textures/monstres/sananes.png",
                      pathToResources + "/textures/monstres/dragon.png",
                      pathToResources + "/textures/monstres/armand_jesus.png"]
 
         for i in range(len(names) - 1):
-            monstersDict[i + 12] = Monster(i+12, names[i], hp[i], att[i], defense[i], xp[i], imagePath[i])
+            monstersDict[i + 12] = Monster(i + 12, names[i], hp[i], att[i], defense[i], xp[i], imagePath[i])
         monstersDict[99] = Monster(99, names[-1], hp[-1], att[-1], defense[-1], xp[-1], imagePath[-1])
         return monstersDict
 
@@ -384,7 +392,8 @@ class Game:
     def renderMap(self, screen):
         for x in range(len(self.maps[self.player.mapId])):
             for y in range(len(self.maps[self.player.mapId][0])):
-                image = pygame.image.load(pathToResources + "/textures/" + str(self.maps[self.player.mapId][x][y]) + ".png")
+                image = pygame.image.load(
+                    pathToResources + "/textures/" + str(self.maps[self.player.mapId][x][y]) + ".png")
                 screen.blit(image, [y * 32, x * 32])
 
     def attack(self, weapon, monster):
@@ -426,7 +435,8 @@ class Game:
             image = pygame.image.load(pathToResources + "/textures/fonds/battle.jpg")
             self.screen.blit(image, [0, 0])
             for i in range(len(res)):
-                self.font.render_to(self.screen, (100, 200 + 100 * i), str(i + 1) + str(self.player.inventory[res[i]]), (0, 0, 0))
+                self.font.render_to(self.screen, (100, 200 + 100 * i), str(i + 1) + str(self.player.inventory[res[i]]),
+                                    (0, 0, 0))
             self.font.render_to(self.screen, (100, 600), "0 - Retour", (0, 0, 0))
             pygame.display.flip()
             while 1:
@@ -628,7 +638,7 @@ class Game:
         self.screen = pygame.display.set_mode(self.size)
         pygame.mixer.music.load(pathToResources + "/music/MainMenu.mp3")
         pygame.mixer.music.play(-1)
-        image = pygame.image.load(pathToResources + "/fonds/PNJMenu.png")
+        image = pygame.image.load(pathToResources + "/textures/fonds/PNJMenu.png")
         self.screen.blit(image, [0, 0])
         pygame.display.flip()
         while 1:
@@ -674,21 +684,20 @@ class Game:
 
         for i in range(0, len(listCraftZone)):
             if self.craftsDict[listCraftZone[i]].idResource2 == 0:
-                imgText = self.font.render(
-                    self.itemsDict[self.craftsDict[listCraftZone[i]].itemId].name + " : " + str(
-                        self.craftsDict[listCraftZone[i]].nbResource1) + " " +
-                    self.itemsDict[self.craftsDict[listCraftZone[i]].idResource1].name, True, (0, 0, 0))
+                self.font.render_to(self.screen, (50, 50 + i * 50),
+                                    str(self.itemsDict[self.craftsDict[listCraftZone[i]].itemId].name + " : " + str(
+                                        self.craftsDict[listCraftZone[i]].nbResource1) + " " +
+                                        self.itemsDict[self.craftsDict[listCraftZone[i]].idResource1].name), (0, 0, 0))
             else:
-                imgText = self.font.render(
-                    self.itemsDict[self.craftsDict[listCraftZone[i]].itemId].name + " : " + str(
-                        self.craftsDict[listCraftZone[i]].nbResource1) + " " +
-                    self.itemsDict[self.craftsDict[listCraftZone[i]].idResource1].name + " + " + str(
-                        self.craftsDict[listCraftZone[i]].nbResource2) + " " +
-                    self.itemsDict[self.craftsDict[listCraftZone[i]].idResource2].name, True, (0, 0, 0))
-            self.screen.blit(imgText, [50, 50 * i + 50])
+                self.font.render_to(self.screen, (50, 50 + i * 50),
+                                    str(self.itemsDict[self.craftsDict[listCraftZone[i]].itemId].name + " : " + str(
+                                        self.craftsDict[listCraftZone[i]].nbResource1) + " " +
+                                        self.itemsDict[
+                                            self.craftsDict[listCraftZone[i]].idResource1].name + " + " + str(
+                                        self.craftsDict[listCraftZone[i]].nbResource2) + " " +
+                                        self.itemsDict[self.craftsDict[listCraftZone[i]].idResource2].name), (0, 0, 0))
 
-        imgCurseur = self.font.render("->", True, (0, 0, 0))
-        self.screen.blit(imgCurseur, [25, 50 * posC])
+        self.font.render_to(self.screen, (25, 50 * posC), "->", (0, 0, 0))
         pygame.display.flip()
         while 1:
             for event in pygame.event.get():
@@ -723,20 +732,25 @@ class Game:
                         cnt = 0
                         for i in range(0, len(listCraftZone)):
                             if self.craftsDict[listCraftZone[i]].idResource2 == 0:
-                                imgText = self.font.render(
-                                    self.itemsDict[self.craftsDict[listCraftZone[i]].itemId].name + " : " + str(
-                                        self.craftsDict[listCraftZone[i]].nbResource1) + " " +
-                                    self.itemsDict[self.craftsDict[listCraftZone[i]].idResource1].name, True, (0, 0, 0))
+                                self.font.render_to(self.screen, (50, 50 + i * 50),
+                                                    str(self.itemsDict[self.craftsDict[
+                                                        listCraftZone[i]].itemId].name + " : " + str(
+                                                        self.craftsDict[listCraftZone[i]].nbResource1) + " " +
+                                                        self.itemsDict[
+                                                            self.craftsDict[listCraftZone[i]].idResource1].name),
+                                                    (0, 0, 0))
                             else:
-                                imgText = self.font.render(
-                                    self.itemsDict[self.craftsDict[listCraftZone[i]].itemId].name + " : " + str(
-                                        self.craftsDict[listCraftZone[i]].nbResource1) + " " +
-                                    self.itemsDict[self.craftsDict[listCraftZone[i]].idResource1].name + " + " + str(
-                                        self.craftsDict[listCraftZone[i]].nbResource2) + " " +
-                                    self.itemsDict[self.craftsDict[listCraftZone[i]].idResource2].name, True, (0, 0, 0))
-                            self.screen.blit(imgText, [50, 50 * i + 50])
-                        imgCurseur = self.font.render("->", True, (0, 0, 0))
-                        self.screen.blit(imgCurseur, [25, 50 * posC])
+                                self.font.render_to(self.screen, (50, 50 + i * 50),
+                                                    str(self.itemsDict[self.craftsDict[
+                                                        listCraftZone[i]].itemId].name + " : " + str(
+                                                        self.craftsDict[listCraftZone[i]].nbResource1) + " " +
+                                                        self.itemsDict[self.craftsDict[
+                                                            listCraftZone[i]].idResource1].name + " + " + str(
+                                                        self.craftsDict[listCraftZone[i]].nbResource2) + " " +
+                                                        self.itemsDict[
+                                                            self.craftsDict[listCraftZone[i]].idResource2].name),
+                                                    (0, 0, 0))
+                        self.font.render_to(self.screen, (25, 50 * posC), "->", (0, 0, 0))
                         pygame.display.flip()
 
     def craft(self, id):
@@ -755,10 +769,8 @@ class Game:
         image = pygame.image.load(pathToResources + "/textures/fonds/586.jpg")
         self.screen.blit(image, [0, 0])
         pygame.display.flip()
-        imgText = self.font.render("1 - Stocker", True, (0, 0, 0))
-        self.screen.blit(imgText, [100, 300])
-        imgText = self.font.render("2 - Retirer", True, (0, 0, 0))
-        self.screen.blit(imgText, [100, 500])
+        self.font.render_to(self.screen, (100, 300), "1 - Stocker",(0, 0, 0))
+        self.font.render_to(self.screen, (100, 500), "2 - Retirer", (0, 0, 0))
         pygame.display.flip()
         while 1:
             for event in pygame.event.get():
@@ -776,10 +788,8 @@ class Game:
                             case pygame.K_0:
                                 return
                         self.screen.blit(image, [0, 0])
-                        imgText = self.font.render("1 - Stocker", True, (0, 0, 0))
-                        self.screen.blit(imgText, [100, 300])
-                        imgText = self.font.render("2 - Retirer", True, (0, 0, 0))
-                        self.screen.blit(imgText, [100, 500])
+                        self.font.render_to(self.screen, (100, 300),"1 - Stocker", (0, 0, 0))
+                        self.font.render_to(self.screen, (100, 500),"2 - Retirer", (0, 0, 0))
                         pygame.display.flip()
 
     def storeMenu(self):
@@ -794,10 +804,10 @@ class Game:
         pygame.display.flip()
         posC = 0
         for i in range(0, len(self.player.inventory)):
-            imgText = self.font.render(str(self.player.inventory[i].quantity) + ' : ' + self.player.inventory[i].name, True, (0, 0, 0))
-            self.screen.blit(imgText, [200 * (i // 14) + 50, 50 * (i % 14) + 50])
-        imgCurseur = self.font.render("->", True, (0, 0, 0))
-        self.screen.blit(imgCurseur, [200 * (posC // 14) + 25, 50 * (posC % 14) + 50])
+            self.font.render_to(self.screen, (200 * (i // 14) + 50, 50 * (i % 14) + 50),
+                                str(self.player.inventory[i].quantity) + ' : ' + self.player.inventory[i].name,
+                                (0, 0, 0))
+        self.font.render_to(self.screen, (200 * (posC // 14) + 25, 50 * (posC % 14) + 50), "->", (0, 0, 0))
         pygame.display.flip()
         while 1:
             for event in pygame.event.get():
@@ -815,7 +825,8 @@ class Game:
                                 if posC < len(self.player.inventory) - 1:
                                     posC += 1
                             case pygame.K_RETURN:
-                                self.store(self.player.inventory[posC].id, self.quantityMenu(self.player.inventory[posC].quantity))
+                                self.store(self.player.inventory[posC].id,
+                                           self.quantityMenu(self.player.inventory[posC].quantity))
                                 if len(self.player.inventory) == 0:
                                     return
                                 posC = 0
@@ -823,10 +834,9 @@ class Game:
                                 return
                         self.screen.blit(image, [0, 0])
                         for i in range(0, len(self.player.inventory)):
-                            imgText = self.font.render(str(self.player.inventory[i].quantity) + ' : ' + self.player.inventory[i].name, True, (0, 0, 0))
-                            self.screen.blit(imgText, [200 * (i // 14) + 50, 50 * (i % 14) + 50])
-                        imgCurseur = self.font.render("->", True, (0, 0, 0))
-                        self.screen.blit(imgCurseur, [200 * (posC // 14) + 25, 50 * (posC % 14) + 50])
+                            self.font.render_to(self.screen, (200 * (i // 14) + 50, 50 * (i % 14) + 50),str(self.player.inventory[i].quantity) + ' : ' + self.player.inventory[i].name,
+                                (0, 0, 0))
+                        self.font.render_to(self.screen, (200 * (posC // 14) + 25, 50 * (posC % 14) + 50), "->", (0, 0, 0))
                         pygame.display.flip()
 
     def removeStorageMenu(self):
@@ -839,10 +849,9 @@ class Game:
         pygame.display.flip()
         posC = 0
         for i in range(0, len(self.storage)):
-            imgText = self.font.render(str(self.storage[i][1]) + " : " + self.itemsDict[self.storage[i][0]].name, True, (0, 0, 0))
-            self.screen.blit(imgText, [200 * (i // 14) + 50, 50 * (i % 14) + 50])
-        imgCurseur = self.font.render("->", True, (0, 0, 0))
-        self.screen.blit(imgCurseur, [200 * (posC // 14) + 25, 50 * (posC % 14) + 50])
+            self.font.render_to(self.screen, (200 * (i // 14) + 50, 50 * (i % 14) + 50), str(self.storage[i][1]) + " : " + self.itemsDict[self.storage[i][0]].name,
+                                       (0, 0, 0))
+        self.font.render_to(self.screen, (200 * (posC // 14) + 25, 50 * (posC % 14) + 50), "->", (0, 0, 0))
         pygame.display.flip()
         while 1:
             for event in pygame.event.get():
@@ -868,10 +877,11 @@ class Game:
                                 return
                         self.screen.blit(image, [0, 0])
                         for i in range(0, len(self.storage)):
-                            imgText = self.font.render(str(self.storage[i][1]) + " : " + self.itemsDict[self.storage[i][0]].name, True, (0, 0, 0))
-                            self.screen.blit(imgText, [200 * (i // 14) + 50, 50 * (i % 14) + 50])
-                        imgCurseur = self.font.render("->", True, (0, 0, 0))
-                        self.screen.blit(imgCurseur, [200 * (posC // 14) + 25, 50 * (posC % 14) + 50])
+                            self.font.render_to(self.screen, (200 * (i // 14) + 50, 50 * (i % 14) + 50),
+                                                str(self.storage[i][1]) + " : " + self.itemsDict[
+                                                    self.storage[i][0]].name,
+                                                (0, 0, 0))
+                        self.font.render_to(self.screen, (200 * (posC // 14) + 25, 50 * (posC % 14) + 50), "->", (0, 0, 0))
                         pygame.display.flip()
 
     def quantityMenu(self, max):
@@ -883,8 +893,7 @@ class Game:
         self.screen.blit(image, [0, 0])
         pygame.display.flip()
         quantity = 0
-        imgQuantity = self.font.render("< " + str(quantity) + " >", True, (0, 0, 0))
-        self.screen.blit(imgQuantity, [600, 350])
+        self.font.render_to(self.screen, (600, 350), "< " + str(quantity) + " >", (0, 0, 0))
         pygame.display.flip()
         while 1:
             for event in pygame.event.get():
@@ -906,8 +915,7 @@ class Game:
                             case pygame.K_0:
                                 return 0
                         self.screen.blit(image, [0, 0])
-                        imgQuantity = self.font.render("< " + str(quantity) + " >", True, (0, 0, 0))
-                        self.screen.blit(imgQuantity, [600, 350])
+                        self.font.render_to(self.screen, (600, 350), "< " + str(quantity) + " >", (0, 0, 0))
                         pygame.display.flip()
 
     def store(self, id, quantity):
@@ -924,6 +932,7 @@ class Game:
             del self.storage[id]
         else:
             self.storage[id][1] -= quantity
+
 
 def initMap(height, width):
     map = [[0 for x in range(width)] for y in range(height)]
@@ -987,12 +996,14 @@ def fillMap(map, zone):
     map = placeMonsters(map, zone)
     return map
 
+
 def fillAllMaps(maps):
     maps[0][4][4] = 1
     for i in range(0, 9, 3):
         maps[i] = fillMap(maps[i], int(i / 3))
         fillBaseMap(maps[i], maps[2 + i])
     return maps
+
 
 def main():
     pygame.init()
@@ -1002,6 +1013,7 @@ def main():
     game = Game(fillAllMaps(initAllMaps(10, 10)), player, [])
     game.font = pygame.freetype.Font(pathToResources + "/font/OpenSans-Regular.ttf", 24)
     game.mainMenu()
+
 
 pathToResources = os.path.abspath("resources")
 main()
