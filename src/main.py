@@ -649,7 +649,9 @@ class Game:
         pygame.mixer.music.load(pathToResources + "/music/MainMenu.mp3")
         pygame.mixer.music.play(-1)
         image = pygame.image.load(pathToResources + "/textures/fonds/PNJMenu.png")
+        imgPnj = pygame.image.load(pathToResources + "/textures/imgPnj.png")
         self.screen.blit(image, [0, 0])
+        self.screen.blit(imgPnj, [600, 100])
         pygame.display.flip()
         while 1:
             for event in pygame.event.get():
@@ -673,6 +675,7 @@ class Game:
                             case pygame.K_0:
                                 return
                         self.screen.blit(image, [0, 0])
+                        self.screen.blit(imgPnj, [600, 100])
                         pygame.display.flip()
 
     def craftMenu(self):
