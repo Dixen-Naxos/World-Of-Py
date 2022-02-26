@@ -334,27 +334,24 @@ class Game:
         self.player.posY = posY
 
     def collectResources(self, posX, posY):
-        font=pygame.font.Font("C:\Windows\Fonts\segoeprb.ttf",72)
-        self.text = font.render('TEST', True, (255, 0, 0),(255, 255, 255))
-
         value = self.maps[self.player.mapId][posX][posY]
         if value < 6:
             if self.player.checkInInventoryAndUseTool(value - 1) != -1 or self.player.checkInInventoryAndUseTool(
                     value + 9) != -1 or self.player.checkInInventoryAndUseTool(value + 20) != -1:
                 self.player.appendCraftResource(self.itemsDict, value + 2)
                 self.movePlayerAddTimer(posX, posY, 10)
-                self.screen.blit(self.text, (200,0))
+                self.text = self.itemsDict[value + 2].name + " ajouté dans l'inventaire"
         elif value < 9:
             if self.player.checkInInventoryAndUseTool(value + 6) != -1 or self.player.checkInInventoryAndUseTool(
                     value + 17) != -1:
                 self.player.appendCraftResource(self.itemsDict, value + 10)
                 self.movePlayerAddTimer(posX, posY, 10)
-                self.font.render_to(self.screen, (100, 600), "0 - Retour", (0, 0, 0))
+                self.text = self.itemsDict[value + 10].name + " ajouté dans l'inventaire"
         else:
             if self.player.checkInInventoryAndUseTool(value + 14) != -1:
                 self.player.appendCraftResource(self.itemsDict, value + 18)
                 self.movePlayerAddTimer(posX, posY, 10)
-                self.screen.blit(self.text, (200,0))
+                self.text = self.itemsDict[value + 18].name + " ajouté dans l'inventaire"
         
 
     def move(self, posX, posY):
@@ -404,7 +401,7 @@ class Game:
     def fillRender(self, screen):
         image = pygame.image.load(pathToResources + "/textures/0.png")
         for x in range(len(self.maps[self.player.mapId])):
-            for y in range(len(self.maps[self.player.mapId][0])):
+            for y in range(len(self.maps[self.player.mapId][0]) + 1):
                 screen.blit(image, [x * 32, y * 32])
 
     def renderMap(self, screen):
@@ -554,7 +551,7 @@ class Game:
             main()
 
     def zoneSetup(self):
-        self.size = width, height = len(self.maps[self.player.mapId]) * 32, len(self.maps[self.player.mapId][0]) * 32
+        self.size = width, height = len(self.maps[self.player.mapId]) * 32, len(self.maps[self.player.mapId][0]) * 32 + 32
         self.screen = pygame.display.set_mode(self.size)
         if self.player.mapId == 0:
             pygame.mixer.music.load(pathToResources + "/music/Zone_1.mp3")
@@ -589,6 +586,8 @@ class Game:
                                 self.checkCanMove(4)
                         self.fillRender(self.screen)
                         self.renderMap(self.screen)
+                        self.font.render_to(self.screen, (0, len(self.maps[self.player.mapId][0]) * 32), self.text, (0, 0, 0))
+                        self.text = ""
                         pygame.display.flip()
 
     def turnMenu(self):
