@@ -677,7 +677,7 @@ class Game:
         self.font.render_to(self.screen, (50, 160), "exp : "+str(self.player.currentExp), (0, 0, 0))
         self.font.render_to(self.screen, (50, 200), "inventaire : ", (0, 0, 0))
         for i in range(0, len(self.player.inventory)):
-            self.font.render_to(self.screen, (500 * (i // 14) + 50, 50 * (i % 14) + 220),str(self.player.inventory[i].quantity) + ' : ' + self.player.inventory[i].name,
+            self.font.render_to(self.screen, (500 * (i // 14) + 50, 50 * (i % 14) + 230),str(self.player.inventory[i].quantity) + ' : ' + self.player.inventory[i].name,
                 (0, 0, 0))
         pygame.display.flip()
         menuOn = 1
@@ -693,9 +693,13 @@ class Game:
                             case pygame.K_0:
                                 menuOn = 0
                         self.screen.blit(image, [0, 0])
-                        self.font.render_to(self.screen, (50, 50), str(self.player), (0, 0, 0))
+                        self.font.render_to(self.screen, (50, 50), "perso : ", (0, 0, 0))
+                        self.font.render_to(self.screen, (50, 80), "level : "+str(self.player.level), (0, 0, 0))
+                        self.font.render_to(self.screen, (50, 120), "hp : "+str(self.player.currentHp), (0, 0, 0))
+                        self.font.render_to(self.screen, (50, 160), "exp : "+str(self.player.currentExp), (0, 0, 0))
+                        self.font.render_to(self.screen, (50, 200), "inventaire : ", (0, 0, 0))
                         for i in range(0, len(self.player.inventory)):
-                            self.font.render_to(self.screen, (250 * (i // 14) + 50, 50 * (i % 14) + 50),str(self.player.inventory[i].quantity) + ' : ' + self.player.inventory[i].name,
+                            self.font.render_to(self.screen, (500 * (i // 14) + 50, 50 * (i % 14) + 230),str(self.player.inventory[i].quantity) + ' : ' + self.player.inventory[i].name,
                                 (0, 0, 0))
                         pygame.display.flip()
 
