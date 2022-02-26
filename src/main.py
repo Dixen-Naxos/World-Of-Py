@@ -1076,7 +1076,7 @@ def fillAllMaps(maps):
 def main():
     pygame.init()
     pygame.mixer.init()
-    pygame.mixer.music.set_volume(0)
+    pygame.mixer.music.set_volume(0.05)
     player = Player(0, 1, 50, 4, 4, 0)
     game = Game(fillAllMaps(initAllMaps(10, 10)), player, [])
     game.font = pygame.freetype.Font(pathToResources + "/font/OpenSans-Regular.ttf", 24)
