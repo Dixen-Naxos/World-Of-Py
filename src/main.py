@@ -596,6 +596,7 @@ class Game:
                                 self.checkCanMove(4)
                             case pygame.K_i:
                                 self.playerMenu()
+                                self.zoneSetup()
                         self.fillRender(self.screen)
                         self.renderMap(self.screen)
                         self.fontInfo.render_to(self.screen, (0, len(self.maps[self.player.mapId][0]) * 32), self.text, (0, 0, 0))
