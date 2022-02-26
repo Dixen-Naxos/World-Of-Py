@@ -159,6 +159,8 @@ class Game:
         self.size = None
         self.screen = None
         self.font = None
+        self.fontInfo = None
+        self.text = None
 
     def saveGame(self):
         pathToSave = os.path.abspath(pathToResources + "/save.json")
@@ -323,7 +325,10 @@ class Game:
                 self.player.mapId = 6
                 self.findPortal(idPortal)
                 pygame.mixer.music.load(pathToResources + "/music/Zone_3.mp3")
+            else :
+                self.text = "niveau requis : 7"
         else:
+            self.text = "niveau requis : 3"
             return 0
         self.zoneSetup()
 
@@ -341,16 +346,25 @@ class Game:
                     value + 9) != -1 or self.player.checkInInventoryAndUseTool(value + 20) != -1:
                 self.player.appendCraftResource(self.itemsDict, value + 2)
                 self.movePlayerAddTimer(posX, posY, 10)
+                self.text = self.itemsDict[value + 2].name + " ajouté dans l'inventaire"
+            else :
+                self.text = "vous n'avez pas l'outil"
         elif value < 9:
             if self.player.checkInInventoryAndUseTool(value + 6) != -1 or self.player.checkInInventoryAndUseTool(
                     value + 17) != -1:
                 self.player.appendCraftResource(self.itemsDict, value + 10)
                 self.movePlayerAddTimer(posX, posY, 10)
+                self.text = self.itemsDict[value + 10].name + " ajouté dans l'inventaire"
+            else :
+                self.text = "vous n'avez pas l'outil"
         else:
             if self.player.checkInInventoryAndUseTool(value + 14) != -1:
                 self.player.appendCraftResource(self.itemsDict, value + 18)
                 self.movePlayerAddTimer(posX, posY, 10)
-
+                self.text = self.itemsDict[value + 18].name + " ajouté dans l'inventaire"
+            else :
+                self.text = "vous n'avez pas l'outil"
+        
     def move(self, posX, posY):
         if 12 > self.maps[self.player.mapId][posX][posY] > 2:
             self.collectResources(posX, posY)
@@ -360,6 +374,7 @@ class Game:
             self.zoneSetup()
         elif self.maps[self.player.mapId][posX][posY] == -1:
             print("Mur")
+            self.text = "VOUS NE PASSEREZ PAS!!!"
         elif 22 > self.maps[self.player.mapId][posX][posY] > 11 or self.maps[self.player.mapId][posX][posY] == 99:
             if self.battle(posX, posY) == -1:
                 print("Pas d'arme")
@@ -398,7 +413,7 @@ class Game:
     def fillRender(self, screen):
         image = pygame.image.load(pathToResources + "/textures/0.png")
         for x in range(len(self.maps[self.player.mapId])):
-            for y in range(len(self.maps[self.player.mapId][0])):
+            for y in range(len(self.maps[self.player.mapId][0]) + 1):
                 screen.blit(image, [x * 32, y * 32])
 
     def renderMap(self, screen):
@@ -548,7 +563,7 @@ class Game:
             main()
 
     def zoneSetup(self):
-        self.size = width, height = len(self.maps[self.player.mapId]) * 32, len(self.maps[self.player.mapId][0]) * 32
+        self.size = width, height = len(self.maps[self.player.mapId]) * 32, len(self.maps[self.player.mapId][0]) * 32 + 32
         self.screen = pygame.display.set_mode(self.size)
         if self.player.mapId == 0:
             pygame.mixer.music.load(pathToResources + "/music/Zone_1.mp3")
@@ -581,8 +596,13 @@ class Game:
                                 self.checkCanMove(3)
                             case pygame.K_q:
                                 self.checkCanMove(4)
+                            case pygame.K_i:
+                                self.playerMenu()
+                                self.zoneSetup()
                         self.fillRender(self.screen)
                         self.renderMap(self.screen)
+                        self.fontInfo.render_to(self.screen, (0, len(self.maps[self.player.mapId][0]) * 32), self.text, (0, 0, 0))
+                        self.text = ""
                         pygame.display.flip()
 
     def turnMenu(self):
@@ -608,9 +628,11 @@ class Game:
                                 self.screen = pygame.display.set_mode(self.size)
                             case pygame.K_2:
                                 self.saveGame()
+                                self.text = "partie sauvegardé"
                             case pygame.K_0:
                                 menuOn = 0
                         self.screen.blit(image, [0, 0])
+                        self.font.render_to(self.screen, (550, 550), self.text, (255, 0, 0))
                         pygame.display.flip()
 
     def mainMenu(self):
@@ -647,6 +669,45 @@ class Game:
                             case pygame.K_0:
                                 sys.exit()
                         self.screen.blit(image, [0, 0])
+                        pygame.display.flip()
+
+    def playerMenu(self):
+        self.size = width, height = 400, 720
+        self.screen = pygame.display.set_mode(self.size)
+        pygame.mixer.music.load(pathToResources + "/music/MainMenu.mp3")
+        pygame.mixer.music.play(-1)
+        image = pygame.image.load(pathToResources + "/textures/fonds/586.jpg")
+        self.screen.blit(image, [0, 0])
+        self.font.render_to(self.screen, (50, 50), "perso : ", (0, 0, 0))
+        self.font.render_to(self.screen, (50, 80), "level : "+str(self.player.level), (0, 0, 0))
+        self.font.render_to(self.screen, (50, 120), "hp : "+str(self.player.currentHp), (0, 0, 0))
+        self.font.render_to(self.screen, (50, 160), "exp : "+str(self.player.currentExp), (0, 0, 0))
+        self.font.render_to(self.screen, (50, 200), "inventaire : ", (0, 0, 0))
+        for i in range(0, len(self.player.inventory)):
+            self.font.render_to(self.screen, (500 * (i // 14) + 50, 50 * (i % 14) + 230),str(self.player.inventory[i].quantity) + ' : ' + self.player.inventory[i].name,
+                (0, 0, 0))
+        pygame.display.flip()
+        menuOn = 1
+        while menuOn:
+            for event in pygame.event.get():
+                match event.type:
+                    case pygame.QUIT:
+                        menuOn = 0
+                    case pygame.KEYUP:
+                        match event.key:
+                            case pygame.K_ESCAPE:
+                                sys.exit()
+                            case pygame.K_0:
+                                menuOn = 0
+                        self.screen.blit(image, [0, 0])
+                        self.font.render_to(self.screen, (50, 50), "perso : ", (0, 0, 0))
+                        self.font.render_to(self.screen, (50, 80), "level : "+str(self.player.level), (0, 0, 0))
+                        self.font.render_to(self.screen, (50, 120), "hp : "+str(self.player.currentHp), (0, 0, 0))
+                        self.font.render_to(self.screen, (50, 160), "exp : "+str(self.player.currentExp), (0, 0, 0))
+                        self.font.render_to(self.screen, (50, 200), "inventaire : ", (0, 0, 0))
+                        for i in range(0, len(self.player.inventory)):
+                            self.font.render_to(self.screen, (500 * (i // 14) + 50, 50 * (i % 14) + 230),str(self.player.inventory[i].quantity) + ' : ' + self.player.inventory[i].name,
+                                (0, 0, 0))
                         pygame.display.flip()
 
     def pnjMenu(self):
@@ -737,10 +798,16 @@ class Game:
                                                 self.craftsDict[listCraftZone[posC - 1]].idResource2,
                                                 self.craftsDict[listCraftZone[posC - 1]].nbResource2):
                                             self.craft(listCraftZone[posC - 1])
+                                            self.text = "Craft fait !"
                                             return
+                                        else : 
+                                            self.text = "vous n'avez pas assez de ressources"
                                     else:
                                         self.craft(listCraftZone[posC - 1])
+                                        self.text = "Craft fait !"
                                         return
+                                else : 
+                                    self.text = "vous n'avez pas assez de ressources"
                             case pygame.K_0:
                                 return
                         self.screen.blit(image, [0, 0])
@@ -766,6 +833,8 @@ class Game:
                                                             self.craftsDict[listCraftZone[i]].idResource2].name),
                                                     (0, 0, 0))
                         self.font.render_to(self.screen, (25, 50 * posC), "->", (0, 0, 0))
+                        self.font.render_to(self.screen, (550, 550), self.text, (255, 0, 0))
+                        self.text = ""
                         pygame.display.flip()
 
     def craft(self, id):
@@ -1007,10 +1076,11 @@ def fillAllMaps(maps):
 def main():
     pygame.init()
     pygame.mixer.init()
-    pygame.mixer.music.set_volume(0.1)
+    pygame.mixer.music.set_volume(0)
     player = Player(0, 1, 50, 4, 4, 0)
     game = Game(fillAllMaps(initAllMaps(10, 10)), player, [])
     game.font = pygame.freetype.Font(pathToResources + "/font/OpenSans-Regular.ttf", 24)
+    game.fontInfo = pygame.freetype.Font(pathToResources + "/font/OpenSans-Regular.ttf", 17)
     game.mainMenu()
 
 
