@@ -40,8 +40,8 @@ class Player:
         if inventory is None:
             self.inventory = []
         else:
+            self.inventory = []
             for elt in inventory:
-                self.inventory = []
                 self.inventory.append(Item(*list(elt.values())))
         self.currentExp = currentExp
         self.level = level
@@ -187,6 +187,8 @@ class Game:
                 self.storage = data['storage']
                 playerList = list(data['player'].values())
                 self.player = Player(*playerList)
+                for elt in self.player.inventory:
+                    print(elt.name)
                 return 1
             except json.decoder.JSONDecodeError:
                 return -1
@@ -629,6 +631,10 @@ class Game:
                             case pygame.K_ESCAPE:
                                 sys.exit()
                             case pygame.K_1:
+                                newPlayer = Player(0, 1, 50, 4, 4, 0)
+                                self.maps = fillAllMaps(initAllMaps(10, 10))
+                                self.player = newPlayer
+                                self.storage = []
                                 self.player.newGameInventory(self.itemsDict)
                                 self.turnMenu()
                                 pygame.mixer.music.load(pathToResources + "/music/MainMenu.mp3")
@@ -646,7 +652,7 @@ class Game:
     def pnjMenu(self):
         self.size = width, height = 1280, 720
         self.screen = pygame.display.set_mode(self.size)
-        pygame.mixer.music.load(pathToResources + "/music/MainMenu.mp3")
+        pygame.mixer.music.load(pathToResources + "/music/Pnj.mp3")
         pygame.mixer.music.play(-1)
         image = pygame.image.load(pathToResources + "/textures/fonds/PNJMenu.png")
         imgPnj = pygame.image.load(pathToResources + "/textures/imgPnj.png")
@@ -679,10 +685,6 @@ class Game:
                         pygame.display.flip()
 
     def craftMenu(self):
-        self.size = width, height = 1280, 720
-        self.screen = pygame.display.set_mode(self.size)
-        pygame.mixer.music.load(pathToResources + "/music/MainMenu.mp3")
-        pygame.mixer.music.play(-1)
         image = pygame.image.load(pathToResources + "/textures/fonds/586.jpg")
         self.screen.blit(image, [0, 0])
         pygame.display.flip()
@@ -775,10 +777,6 @@ class Game:
         self.player.inventory.append(copy.deepcopy(self.itemsDict[self.craftsDict[id].itemId]))
 
     def storageMenu(self):
-        self.size = width, height = 1280, 720
-        self.screen = pygame.display.set_mode(self.size)
-        pygame.mixer.music.load(pathToResources + "/music/MainMenu.mp3")
-        pygame.mixer.music.play(-1)
         image = pygame.image.load(pathToResources + "/textures/fonds/586.jpg")
         self.screen.blit(image, [0, 0])
         pygame.display.flip()
@@ -808,10 +806,6 @@ class Game:
     def storeMenu(self):
         if len(self.player.inventory) == 0:
             return
-        self.size = width, height = 1280, 720
-        self.screen = pygame.display.set_mode(self.size)
-        pygame.mixer.music.load(pathToResources + "/music/MainMenu.mp3")
-        pygame.mixer.music.play(-1)
         image = pygame.image.load(pathToResources + "/textures/fonds/586.jpg")
         self.screen.blit(image, [0, 0])
         pygame.display.flip()
@@ -853,10 +847,6 @@ class Game:
                         pygame.display.flip()
 
     def removeStorageMenu(self):
-        self.size = width, height = 1280, 720
-        self.screen = pygame.display.set_mode(self.size)
-        pygame.mixer.music.load(pathToResources + "/music/MainMenu.mp3")
-        pygame.mixer.music.play(-1)
         image = pygame.image.load(pathToResources + "/textures/fonds/586.jpg")
         self.screen.blit(image, [0, 0])
         pygame.display.flip()
@@ -898,10 +888,6 @@ class Game:
                         pygame.display.flip()
 
     def quantityMenu(self, max):
-        self.size = width, height = 1280, 720
-        self.screen = pygame.display.set_mode(self.size)
-        pygame.mixer.music.load(pathToResources + "/music/MainMenu.mp3")
-        pygame.mixer.music.play(-1)
         image = pygame.image.load(pathToResources + "/textures/fonds/586.jpg")
         self.screen.blit(image, [0, 0])
         pygame.display.flip()
