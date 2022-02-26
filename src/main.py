@@ -120,9 +120,10 @@ class Player:
             if itemDict[itemId].type == "Soin":
                 done = 0
                 for elt in self.inventory:
-                    if elt.name == itemDict[itemId].name:
+                    if elt.id == itemId:
+                        done = 1
                         elt.quantity += quantity
-                if done == 0 and len(self.inventory) < 11:
+                if done == 0:
                     self.inventory.append(copy.deepcopy(itemDict[itemId]))
                     self.inventory[-1].quantity = quantity
             else:
@@ -733,12 +734,8 @@ class Game:
                                 self.player.repareItems(self.itemsDict)
                             case pygame.K_2:
                                 self.craftMenu()
-                                pygame.mixer.music.load(pathToResources + "/music/MainMenu.mp3")
-                                pygame.mixer.music.play(-1)
                             case pygame.K_3:
                                 self.storageMenu()
-                                pygame.mixer.music.load(pathToResources + "/music/MainMenu.mp3")
-                                pygame.mixer.music.play(-1)
                             case pygame.K_0:
                                 return
                         self.screen.blit(image, [0, 0])
@@ -843,7 +840,7 @@ class Game:
         if self.craftsDict[id].idResource2 != 0:
             self.player.removeItem(self.craftsDict[id].idResource2,
                                    self.craftsDict[id].nbResource2)
-        self.player.inventory.append(copy.deepcopy(self.itemsDict[self.craftsDict[id].itemId]))
+        self.player.appendInventory(self.itemsDict, self.craftsDict[id].itemId, 1)
 
     def storageMenu(self):
         image = pygame.image.load(pathToResources + "/textures/fonds/586.jpg")
