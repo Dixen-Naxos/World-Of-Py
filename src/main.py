@@ -594,6 +594,8 @@ class Game:
                                 self.checkCanMove(3)
                             case pygame.K_q:
                                 self.checkCanMove(4)
+                            case pygame.K_i:
+                                self.playerMenu()
                         self.fillRender(self.screen)
                         self.renderMap(self.screen)
                         self.fontInfo.render_to(self.screen, (0, len(self.maps[self.player.mapId][0]) * 32), self.text, (0, 0, 0))
@@ -661,6 +663,16 @@ class Game:
                                 sys.exit()
                         self.screen.blit(image, [0, 0])
                         pygame.display.flip()
+
+    def playerMenu(self):
+        self.size = width, height = 1280, 720
+        self.screen = pygame.display.set_mode(self.size)
+        pygame.mixer.music.load(pathToResources + "/music/MainMenu.mp3")
+        pygame.mixer.music.play(-1)
+        image = pygame.image.load(pathToResources + "/textures/fonds/586.jpg")
+        self.screen.blit(image, [0, 0])
+        self.font.render_to(self.screen, (100, 600), str(self.player), (0, 0, 0))
+        pygame.display.flip()
 
     def pnjMenu(self):
         self.size = width, height = 1280, 720
